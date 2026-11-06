@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
 import VistaTemporal from '../pages/VistaTemporal'
+import Registro from '../pages/Registro/Registro'
 
 const publicas = [
   ['/', 'Inicio'],
@@ -32,6 +33,7 @@ const administracion = [
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/registro" element={<Registro />} />
       {publicas.map(([path, titulo]) => (
         <Route
           key={path}
