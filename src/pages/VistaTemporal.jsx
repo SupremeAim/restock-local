@@ -20,10 +20,9 @@ function VistaTemporal({ titulo }) {
 
       <h1>{titulo}</h1>
 
-      <p>
-        Esta ruta ya está creada. Su pantalla se construirá
-        siguiendo la propuesta de Figma.
-      </p>
+    
+        <p>Estamos preparando ReStock Local.</p>
+    
 
       <h2>Probar navegación</h2>
 
