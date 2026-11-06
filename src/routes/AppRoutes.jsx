@@ -4,11 +4,10 @@ import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
 import VistaTemporal from '../pages/VistaTemporal'
 import Registro from '../pages/Registro/Registro'
+import Login from '../pages/Login/Login'
 
 const publicas = [
   ['/', 'Inicio'],
-  ['/iniciar-sesion', 'Iniciar sesión'],
-  ['/registro', 'Crear cuenta']
 ]
 
 const comercio = [
@@ -33,6 +32,7 @@ const administracion = [
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/iniciar-sesion" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
       {publicas.map(([path, titulo]) => (
         <Route

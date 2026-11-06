@@ -1,5 +1,6 @@
-
 import { Link } from 'react-router'
+import { useAuth } from '../hooks/useAuth'
+import CerrarSesion from '../components/Shared/CerrarSesion/CerrarSesion'
 
 const enlaces = [
   { ruta: '/', nombre: 'Inicio' },
@@ -14,15 +15,17 @@ const enlaces = [
 ]
 
 function VistaTemporal({ titulo }) {
+  const { user, loading } = useAuth()
+
   return (
     <main className="vista-temporal">
       <p className="marca">ReStock Local</p>
 
       <h1>{titulo}</h1>
 
-    
-        <p>Estamos preparando ReStock Local.</p>
-    
+      <p>Estamos preparando ReStock Local.</p>
+
+      {!loading && user && <CerrarSesion />}
 
       <h2>Probar navegación</h2>
 
