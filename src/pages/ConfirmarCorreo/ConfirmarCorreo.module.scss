@@ -1,0 +1,123 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+
+  h1 {
+    margin: 28px 0 16px;
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  p {
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  form {
+    margin-top: 24px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+  }
+
+  a,
+  button,
+  input {
+    &:focus-visible {
+      outline: 3px solid #93c5fd;
+      outline-offset: 3px;
+    }
+  }
+
+  .error {
+    color: #b91c1c;
+  }
+
+  .notice {
+    padding: 12px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1e40af;
+  }
+}
+
+.brand {
+  color: #1d4ed8;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #1e40af;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+.footer {
+  margin-top: 24px;
+  text-align: center;
+
+  a {
+    color: #1d4ed8;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 20px;
+  }
+}
