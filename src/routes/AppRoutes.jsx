@@ -1,4 +1,3 @@
-
 import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
@@ -8,11 +7,11 @@ import Login from '../pages/Login/Login'
 
 const publicas = [
   ['/', 'Inicio'],
+  ['/catalogo', 'Catálogo'],
+  ['/ofertas/:id', 'Detalle de oferta']
 ]
 
 const comercio = [
-  ['/catalogo', 'Catálogo'],
-  ['/ofertas/:id', 'Detalle de oferta'],
   ['/configurar-negocio', 'Configurar negocio'],
   ['/mi-negocio', 'Mi negocio'],
   ['/mis-publicaciones', 'Mis publicaciones'],
@@ -34,6 +33,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/iniciar-sesion" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
+
       {publicas.map(([path, titulo]) => (
         <Route
           key={path}
