@@ -1,0 +1,11 @@
+{
+  "name": "restock-local-pruebas-base-de-datos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node negociacion.pruebas.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.15"
+  }
+}
