@@ -4,6 +4,7 @@ import AdminRoutes from './AdminRoutes'
 import VistaTemporal from '../pages/VistaTemporal'
 import Registro from '../pages/Registro/Registro'
 import Login from '../pages/Login/Login'
+import ConfirmarCorreo from '../pages/ConfirmarCorreo/ConfirmarCorreo'
 
 const publicas = [
   ['/', 'Inicio'],
@@ -33,6 +34,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/iniciar-sesion" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
+      <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
       {publicas.map(([path, titulo]) => (
         <Route
