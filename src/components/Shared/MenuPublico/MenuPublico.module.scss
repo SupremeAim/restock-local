@@ -1,0 +1,137 @@
+.menu {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.barra {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.marca {
+  color: #1d4ed8;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.opciones {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.enlace {
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    color: #0f172a;
+  }
+}
+
+%boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.principal {
+  @extend %boton;
+  background: #1d4ed8;
+  color: #ffffff;
+
+  &:hover {
+    background: #1e40af;
+  }
+}
+
+.secundario {
+  @extend %boton;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.enlace,
+.principal,
+.secundario,
+.marca,
+.alternar {
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+}
+
+.alternar {
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+
+  span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: #0f172a;
+  }
+}
+
+@media (max-width: 768px) {
+  .barra {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .marca {
+    font-size: 20px;
+  }
+
+  .alternar {
+    display: flex;
+  }
+
+  .opciones {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 8px;
+
+    &.abierto {
+      display: flex;
+    }
+  }
+
+  .enlace {
+    padding: 8px 0;
+  }
+}
