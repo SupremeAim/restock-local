@@ -1,4 +1,5 @@
-import { Link } from 'react-router'
+import { Link, Navigate } from 'react-router'
+import { useAuth } from '../../hooks/useAuth'
 import MenuPublico from '../../components/Shared/MenuPublico/MenuPublico'
 import PasoCard from '../../components/Index/PasoCard/PasoCard'
 import styles from './Index.module.scss'
@@ -29,6 +30,12 @@ const datosEjemplo = [
 ]
 
 function Index() {
+  const { user, profile } = useAuth()
+
+  if (user && profile) {
+    return <Navigate to={profile.role === 'admin' ? '/admin/comercios' : '/catalogo'} replace />
+  }
+
   return (
     <div className={styles.pagina}>
       <MenuPublico />

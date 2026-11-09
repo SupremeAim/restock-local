@@ -5,14 +5,14 @@ import VistaTemporal from '../pages/VistaTemporal'
 import Registro from '../pages/Registro/Registro'
 import Login from '../pages/Login/Login'
 import ConfirmarCorreo from '../pages/ConfirmarCorreo/ConfirmarCorreo'
-
-const publicas = [
-  ['/', 'Inicio'],
-  ['/catalogo', 'Catálogo'],
-  ['/ofertas/:id', 'Detalle de oferta']
-]
+import Index from '../pages/Index/Index'
+import SolicitudesRecibidas from '../pages/SolicitudesRecibidas/SolicitudesRecibidas'
+import SolicitudesEnviadas from '../pages/SolicitudesEnviadas/SolicitudesEnviadas'
+import Negociacion from '../pages/Negociacion/Negociacion'
 
 const comercio = [
+  ['/catalogo', 'Catálogo'],
+  ['/ofertas/:id', 'Detalle de oferta'],
   ['/configurar-negocio', 'Configurar negocio'],
   ['/mi-negocio', 'Mi negocio'],
   ['/mis-publicaciones', 'Mis publicaciones'],
@@ -23,6 +23,12 @@ const comercio = [
   ['/negociaciones/:id', 'Negociación'],
   ['/red-comercial', 'Red comercial']
 ]
+
+const paginas = {
+  '/solicitudes-recibidas': <SolicitudesRecibidas />,
+  '/solicitudes-enviadas': <SolicitudesEnviadas />,
+  '/negociaciones/:id': <Negociacion />
+}
 
 const administracion = [
   ['/admin/comercios', 'Administrar comercios'],
@@ -36,20 +42,14 @@ function AppRoutes() {
       <Route path="/registro" element={<Registro />} />
       <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
-      {publicas.map(([path, titulo]) => (
-        <Route
-          key={path}
-          path={path}
-          element={<VistaTemporal titulo={titulo} />}
-        />
-      ))}
+      <Route path="/" element={<Index />} />
 
       <Route element={<UserRoutes />}>
         {comercio.map(([path, titulo]) => (
           <Route
             key={path}
             path={path}
-            element={<VistaTemporal titulo={titulo} />}
+            element={paginas[path] ?? <VistaTemporal titulo={titulo} />}
           />
         ))}
       </Route>

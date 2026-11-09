@@ -196,3 +196,22 @@ export function contarPorEstado(solicitudes) {
   }
   return conteo
 }
+
+export function filtrarSolicitudes(solicitudes, filtro) {
+  if (filtro === 'todas') return solicitudes
+  if (filtro === 'cerradas') {
+    return solicitudes.filter((solicitud) => datosEstado(solicitud.status).terminal)
+  }
+  return solicitudes.filter((solicitud) => solicitud.status === filtro)
+}
+
+export function mapasDesdeFilas(filas, tipo) {
+  const negocios = {}
+  const ofertas = {}
+  for (const fila of filas) {
+    const otro = tipo === 'recibidas' ? fila.buyer_id : fila.seller_id
+    negocios[otro] = { name: fila.counterpart_name, city: fila.counterpart_city }
+    ofertas[fila.offer_id] = { title: fila.offer_title, unit_price: fila.offer_unit_price }
+  }
+  return { negocios, ofertas }
+}

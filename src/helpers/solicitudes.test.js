@@ -12,7 +12,9 @@ import {
   formatearFecha,
   rolEnSolicitud,
   siguientePaso,
-  validarPropuesta
+  validarPropuesta,
+  filtrarSolicitudes,
+  mapasDesdeFilas
 } from './solicitudes'
 
 const VENDEDOR = 'v1'
@@ -203,5 +205,27 @@ describe('cola de revisión', () => {
 
   it('queda vacía si no hay pendientes', () => {
     expect(construirColaRevision([solicitud({ status: 'aceptada' })]).estaVacia()).toBe(true)
+  })
+})
+
+describe('filtros y datos para las listas', () => {
+  const filas = [
+    solicitud({ id: 'a', status: 'pendiente', offer_id: 'o1', offer_title: 'Bolsos', offer_unit_price: 45000, counterpart_name: 'Moda Express', counterpart_city: 'Cali' }),
+    solicitud({ id: 'b', status: 'recibida', offer_id: 'o2', offer_title: 'Termos', offer_unit_price: 20000, counterpart_name: 'Moda Express', counterpart_city: 'Cali' }),
+    solicitud({ id: 'c', status: 'cancelada', offer_id: 'o2', offer_title: 'Termos', offer_unit_price: 20000, counterpart_name: 'Moda Express', counterpart_city: 'Cali' })
+  ]
+
+  it('filtra por estado y agrupa las cerradas', () => {
+    expect(filtrarSolicitudes(filas, 'todas')).toHaveLength(3)
+    expect(filtrarSolicitudes(filas, 'pendiente').map((s) => s.id)).toEqual(['a'])
+    expect(filtrarSolicitudes(filas, 'cerradas').map((s) => s.id)).toEqual(['b', 'c'])
+  })
+
+  it('arma los nombres de la otra parte y los títulos de las ofertas', () => {
+    const recibidas = mapasDesdeFilas(filas, 'recibidas')
+    expect(recibidas.negocios[COMPRADOR]).toEqual({ name: 'Moda Express', city: 'Cali' })
+    expect(recibidas.ofertas.o2).toEqual({ title: 'Termos', unit_price: 20000 })
+    const enviadas = mapasDesdeFilas(filas, 'enviadas')
+    expect(enviadas.negocios[VENDEDOR].name).toBe('Moda Express')
   })
 })
