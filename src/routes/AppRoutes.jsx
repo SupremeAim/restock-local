@@ -14,17 +14,13 @@ const PublicarOferta = lazy(() => import('../pages/PublicarOferta/PublicarOferta
 const MisPublicaciones = lazy(() => import('../pages/MisPublicaciones/MisPublicaciones'))
 const EditarOferta = lazy(() => import('../pages/EditarOferta/EditarOferta'))
 const Catalogo = lazy(() => import('../pages/Catalogo/Catalogo'))
+const DetalleOferta = lazy(() => import('../pages/DetalleOferta/DetalleOferta'))
+const Negociacion = lazy(() => import('../pages/Negociacion/Negociacion'))
+const SolicitudesRecibidas = lazy(() => import('../pages/SolicitudesRecibidas/SolicitudesRecibidas'))
+const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/SolicitudesEnviadas'))
 
 const publicas = [
-  ['/', 'Inicio'],
-  ['/ofertas/:id', 'Detalle de oferta']
-]
-
-const comercio = [
-  ['/solicitudes-recibidas', 'Solicitudes recibidas'],
-  ['/solicitudes-enviadas', 'Solicitudes enviadas'],
-  ['/negociaciones/:id', 'Negociación'],
-  ['/red-comercial', 'Red comercial']
+  ['/', 'Inicio']
 ]
 
 const administracion = [
@@ -41,6 +37,7 @@ function AppRoutes() {
         <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
         <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/ofertas/:id" element={<DetalleOferta />} />
 
         {publicas.map(([path, titulo]) => (
           <Route
@@ -76,13 +73,25 @@ function AppRoutes() {
             element={<EditarOferta />}
           />
 
-          {comercio.map(([path, titulo]) => (
-            <Route
-              key={path}
-              path={path}
-              element={<VistaTemporal titulo={titulo} />}
-            />
-          ))}
+          <Route
+            path="/solicitudes-recibidas"
+            element={<SolicitudesRecibidas />}
+          />
+
+          <Route
+            path="/solicitudes-enviadas"
+            element={<SolicitudesEnviadas />}
+          />
+
+          <Route
+            path="/negociaciones/:id"
+            element={<Negociacion />}
+          />
+
+          <Route
+            path="/red-comercial"
+            element={<VistaTemporal titulo="Red comercial" />}
+          />
         </Route>
 
         <Route element={<AdminRoutes />}>

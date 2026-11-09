@@ -1,0 +1,59 @@
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.principal {
+  background: #1d4ed8;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #1e40af;
+  }
+}
+
+.secundario {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+
+  &:hover:not(:disabled) {
+    background: #f1f5f9;
+  }
+}
+
+.peligro {
+  background: #ffffff;
+  border-color: #991b1b;
+  color: #991b1b;
+
+  &:hover:not(:disabled) {
+    background: #fee2e2;
+  }
+}
+
+.ancho {
+  width: 100%;
+}

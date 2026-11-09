@@ -12,6 +12,18 @@ export async function getCatalogOffers() {
   return data || []
 }
 
+export async function getCatalogOffer(offerId) {
+  const { data, error } = await supabase
+    .from('catalog_offers')
+    .select('*')
+    .eq('id', offerId)
+    .maybeSingle()
+
+  if (error) throw error
+
+  return data
+}
+
 export function subscribeToCatalogChanges(onChange, onStatus) {
   const channel = supabase
     .channel('catalog:offers')
