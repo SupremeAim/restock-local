@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  disponibilidadParaSolicitar,
   accionesDisponibles,
   calcularTotal,
   construirColaRevision,
@@ -227,5 +228,27 @@ describe('filtros y datos para las listas', () => {
     expect(recibidas.ofertas.o2).toEqual({ title: 'Termos', unit_price: 20000 })
     const enviadas = mapasDesdeFilas(filas, 'enviadas')
     expect(enviadas.negocios[VENDEDOR].name).toBe('Moda Express')
+  })
+})
+
+describe('disponibilidad para solicitar', () => {
+  const oferta = { seller_id: 'vendedor', status: 'activa', blocked: false, qty_available: 40, min_purchase: 10 }
+
+  it('permite solicitar una oferta activa de otro comercio', () => {
+    expect(disponibilidadParaSolicitar(oferta, 'comprador')).toBe('disponible')
+  })
+
+  it('detecta la oferta propia', () => {
+    expect(disponibilidadParaSolicitar(oferta, 'vendedor')).toBe('propia')
+  })
+
+  it('bloquea ofertas pausadas o bloqueadas', () => {
+    expect(disponibilidadParaSolicitar({ ...oferta, status: 'pausada' }, 'comprador')).toBe('no_disponible')
+    expect(disponibilidadParaSolicitar({ ...oferta, blocked: true }, 'comprador')).toBe('no_disponible')
+    expect(disponibilidadParaSolicitar(null, 'comprador')).toBe('no_disponible')
+  })
+
+  it('detecta cuando no alcanza para la compra mínima', () => {
+    expect(disponibilidadParaSolicitar({ ...oferta, qty_available: 5 }, 'comprador')).toBe('sin_unidades')
   })
 })

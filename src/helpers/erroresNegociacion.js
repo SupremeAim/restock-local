@@ -36,3 +36,13 @@ export function mensajeDeError(error) {
 export function debeRecargar(error) {
   return RECARGAR.includes(codigoDeError(error))
 }
+
+const ACCIONES_DE_ERROR = {
+  negocio_no_configurado: { texto: 'Configurar mi negocio', ruta: '/configurar-negocio' },
+  solicitud_abierta_existente: { texto: 'Ver mis solicitudes enviadas', ruta: '/solicitudes-enviadas' },
+  sin_sesion: { texto: 'Iniciar sesión', ruta: '/iniciar-sesion' }
+}
+
+export function accionParaError(error) {
+  return ACCIONES_DE_ERROR[codigoDeError(error)] ?? null
+}

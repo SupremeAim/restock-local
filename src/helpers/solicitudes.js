@@ -215,3 +215,11 @@ export function mapasDesdeFilas(filas, tipo) {
   }
   return { negocios, ofertas }
 }
+
+export function disponibilidadParaSolicitar(oferta, usuarioId) {
+  if (!oferta) return 'no_disponible'
+  if (usuarioId && oferta.seller_id === usuarioId) return 'propia'
+  if (oferta.blocked || (oferta.status && oferta.status !== 'activa')) return 'no_disponible'
+  if (Number(oferta.qty_available) < Number(oferta.min_purchase)) return 'sin_unidades'
+  return 'disponible'
+}

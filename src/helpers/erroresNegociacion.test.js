@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { codigoDeError, debeRecargar, mensajeDeError } from './erroresNegociacion'
+import { codigoDeError, debeRecargar, mensajeDeError, accionParaError } from './erroresNegociacion'
 
 describe('errores de la negociación', () => {
   it('reconoce el código que devuelve la base de datos', () => {
@@ -23,5 +23,23 @@ describe('errores de la negociación', () => {
     expect(debeRecargar({ message: 'disponibilidad_insuficiente' })).toBe(true)
     expect(debeRecargar({ message: 'sin_permiso' })).toBe(false)
     expect(debeRecargar(new Error('Failed to fetch'))).toBe(false)
+  })
+})
+
+describe('acciones sugeridas para errores', () => {
+  it('ofrece configurar el negocio cuando falta', () => {
+    expect(accionParaError({ message: 'negocio_no_configurado' })).toEqual({
+      texto: 'Configurar mi negocio',
+      ruta: '/configurar-negocio'
+    })
+  })
+
+  it('lleva a las solicitudes enviadas si ya hay una abierta', () => {
+    expect(accionParaError({ message: 'solicitud_abierta_existente' }).ruta).toBe('/solicitudes-enviadas')
+  })
+
+  it('no sugiere nada para otros errores', () => {
+    expect(accionParaError({ message: 'precio_invalido' })).toBeNull()
+    expect(accionParaError(new Error('Failed to fetch'))).toBeNull()
   })
 })

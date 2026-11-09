@@ -1,0 +1,82 @@
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.aviso {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid #991b1b;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+.botonSuelto {
+  align-self: flex-start;
+}
+
+.accionError {
+  margin-top: 12px;
+}
+
+.nota {
+  margin: 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@media (max-width: 768px) {
+  .tarjeta {
+    padding: 16px;
+  }
+}

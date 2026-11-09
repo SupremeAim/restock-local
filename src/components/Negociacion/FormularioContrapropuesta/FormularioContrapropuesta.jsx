@@ -3,7 +3,18 @@ import Boton from '../../Shared/Boton/Boton'
 import { calcularTotal, formatearCOP, validarPropuesta } from '../../../helpers/solicitudes'
 import styles from './FormularioContrapropuesta.module.scss'
 
-function FormularioContrapropuesta({ oferta, inicial = {}, onEnviar, onCancelar, enviando = false }) {
+function FormularioContrapropuesta({
+  oferta,
+  inicial = {},
+  onEnviar,
+  onCancelar,
+  enviando = false,
+  titulo = 'Tu contrapropuesta',
+  ayuda = 'Reemplaza a la propuesta vigente. La anterior queda en el historial.',
+  etiquetaTotal = 'Total de la contrapropuesta',
+  textoEnviar = 'Enviar contrapropuesta',
+  sinBorde = false
+}) {
   const id = useId()
   const [cantidad, setCantidad] = useState(String(inicial.cantidad ?? ''))
   const [precio, setPrecio] = useState(String(inicial.precio ?? ''))
@@ -27,10 +38,14 @@ function FormularioContrapropuesta({ oferta, inicial = {}, onEnviar, onCancelar,
   }
 
   return (
-    <form className={styles.formulario} onSubmit={enviar} noValidate>
+    <form
+      className={[styles.formulario, sinBorde ? styles.sinBorde : ''].filter(Boolean).join(' ')}
+      onSubmit={enviar}
+      noValidate
+    >
       <div>
-        <h3>Tu contrapropuesta</h3>
-        <p className={styles.ayuda}>Reemplaza a la propuesta vigente. La anterior queda en el historial.</p>
+        <h3>{titulo}</h3>
+        <p className={styles.ayuda}>{ayuda}</p>
       </div>
 
       <div className={styles.fila}>
@@ -79,7 +94,7 @@ function FormularioContrapropuesta({ oferta, inicial = {}, onEnviar, onCancelar,
       </div>
 
       <div className={styles.total} aria-live="polite">
-        <span>Total de la contrapropuesta</span>
+        <span>{etiquetaTotal}</span>
         <strong>{total}</strong>
       </div>
 
@@ -101,11 +116,13 @@ function FormularioContrapropuesta({ oferta, inicial = {}, onEnviar, onCancelar,
 
       <div className={styles.acciones}>
         <Boton type="submit" disabled={enviando}>
-          {enviando ? 'Enviando...' : 'Enviar contrapropuesta'}
+          {enviando ? 'Enviando...' : textoEnviar}
         </Boton>
-        <Boton variante="secundario" onClick={onCancelar} disabled={enviando}>
-          Cancelar
-        </Boton>
+        {onCancelar && (
+          <Boton variante="secundario" onClick={onCancelar} disabled={enviando}>
+            Cancelar
+          </Boton>
+        )}
       </div>
     </form>
   )

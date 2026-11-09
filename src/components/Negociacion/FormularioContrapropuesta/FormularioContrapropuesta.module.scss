@@ -11,6 +11,11 @@
     font-size: 16px;
     font-weight: 500;
   }
+
+  &.sinBorde {
+    padding-top: 0;
+    border-top: none;
+  }
 }
 
 .fila {
