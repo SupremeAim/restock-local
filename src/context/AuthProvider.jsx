@@ -1,11 +1,14 @@
+
 import { useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
 import { supabase } from '../services/supabaseClient'
+import { getMyBusiness } from '../services/businessService'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [sessionLoading, setSessionLoading] = useState(true)
   const [profileState, setProfileState] = useState(null)
+  const [refreshVersion, setRefreshVersion] = useState(0)
 
   const userId = session?.user?.id ?? null
 
@@ -29,22 +32,27 @@ export function AuthProvider({ children }) {
 
     async function loadProfile() {
       try {
-        const { data, error } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
-          .select('id, role, contact_name')
+          .select('id, role, contact_name, created_at')
           .eq('id', id)
           .single()
 
         if (error) throw error
 
-        if (!['comercio', 'admin'].includes(data.role)) {
+        if (!['comercio', 'admin'].includes(profile.role)) {
           throw new Error('Rol no válido')
         }
+
+        const business = profile.role === 'comercio'
+          ? await getMyBusiness(id)
+          : null
 
         if (active) {
           setProfileState({
             userId: id,
-            profile: data,
+            profile,
+            business,
             error: null
           })
         }
@@ -53,7 +61,8 @@ export function AuthProvider({ children }) {
           setProfileState({
             userId: id,
             profile: null,
-            error: 'No pudimos cargar tu perfil. Inténtalo de nuevo.'
+            business: null,
+            error: 'No pudimos cargar tu cuenta. Inténtalo de nuevo.'
           })
         }
       }
@@ -64,7 +73,7 @@ export function AuthProvider({ children }) {
     return () => {
       active = false
     }
-  }, [session])
+  }, [session, refreshVersion])
 
   const currentProfile = userId && profileState?.userId === userId
     ? profileState
@@ -72,13 +81,20 @@ export function AuthProvider({ children }) {
 
   const loading = sessionLoading || Boolean(userId && !currentProfile)
 
+  function refreshAccount() {
+    setProfileState(null)
+    setRefreshVersion(current => current + 1)
+  }
+
   return (
     <AuthContext.Provider
       value={{
         session,
         user: session?.user ?? null,
         profile: currentProfile?.profile ?? null,
+        business: currentProfile?.business ?? null,
         profileError: currentProfile?.error ?? null,
+        refreshAccount,
         loading
       }}
     >

@@ -1,0 +1,227 @@
+
+.loading {
+  padding: 40px;
+  color: #68758a;
+}
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f7f8fb;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 27px 20px;
+  background: #111a2b;
+  color: white;
+}
+
+.brand {
+  margin-bottom: 36px;
+  color: white;
+  font-size: 21px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navigation {
+  display: grid;
+  gap: 8px;
+
+  a {
+    padding: 11px 13px;
+    border-radius: 6px;
+    color: #d0d7e4;
+    text-decoration: none;
+    font-size: 13px;
+
+    &:hover,
+    &.active {
+      background: #2453d4;
+      color: white;
+    }
+  }
+}
+
+.sidebarAccount {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  font-size: 12px;
+
+  span {
+    color: #aab5c7;
+  }
+
+  button {
+    width: fit-content;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: #d0d7e4;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 38px;
+}
+
+.heading {
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+    color: #202b3c;
+  }
+
+  p {
+    margin: 0;
+    color: #6c788c;
+    font-size: 13px;
+  }
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(250px, 0.9fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.formCard,
+.previewCard,
+.accountCard {
+  padding: 22px;
+  background: white;
+  border: 1px solid #dfe3eb;
+  border-radius: 10px;
+}
+
+.previewColumn {
+  display: grid;
+  gap: 18px;
+}
+
+.previewCard {
+  > span {
+    color: #758197;
+    font-size: 11px;
+  }
+
+  h2 {
+    margin: 13px 0 7px;
+    color: #202b3c;
+    font-size: 20px;
+  }
+
+  p {
+    color: #586579;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.previewDescription {
+  min-height: 55px;
+}
+
+.phoneInfo {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+  border-radius: 6px;
+  background: #f5f7fa;
+
+  small {
+    color: #788397;
+  }
+
+  strong {
+    font-size: 11px;
+    color: #384458;
+  }
+}
+
+.accountCard {
+  h3 {
+    margin: 0 0 17px;
+    font-size: 15px;
+  }
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 15px;
+    font-size: 12px;
+
+    span {
+      color: #788397;
+    }
+
+    strong {
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+.status {
+  padding: 4px 9px;
+  border-radius: 15px;
+  background: #e2f7e9;
+  color: #21814a;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .brand {
+    margin-bottom: 15px;
+  }
+
+  .navigation {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .sidebarAccount {
+    display: none;
+  }
+
+  .content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 650px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 20px 14px;
+  }
+
+  .formCard,
+  .previewCard,
+  .accountCard {
+    padding: 18px;
+  }
+}

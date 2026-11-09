@@ -1,23 +1,26 @@
+
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
-import VistaTemporal from '../pages/VistaTemporal'
-import Registro from '../pages/Registro/Registro'
-import Login from '../pages/Login/Login'
-import ConfirmarCorreo from '../pages/ConfirmarCorreo/ConfirmarCorreo'
+
+const VistaTemporal = lazy(() => import('../pages/VistaTemporal'))
+const Registro = lazy(() => import('../pages/Registro/Registro'))
+const Login = lazy(() => import('../pages/Login/Login'))
+const ConfirmarCorreo = lazy(() => import('../pages/ConfirmarCorreo/ConfirmarCorreo'))
+const ConfigurarNegocio = lazy(() => import('../pages/ConfigurarNegocio/ConfigurarNegocio'))
+const MiNegocio = lazy(() => import('../pages/MiNegocio/MiNegocio'))
+const PublicarOferta = lazy(() => import('../pages/PublicarOferta/PublicarOferta'))
+const MisPublicaciones = lazy(() => import('../pages/MisPublicaciones/MisPublicaciones'))
+const EditarOferta = lazy(() => import('../pages/EditarOferta/EditarOferta'))
+const Catalogo = lazy(() => import('../pages/Catalogo/Catalogo'))
 
 const publicas = [
   ['/', 'Inicio'],
-  ['/catalogo', 'Catálogo'],
   ['/ofertas/:id', 'Detalle de oferta']
 ]
 
 const comercio = [
-  ['/configurar-negocio', 'Configurar negocio'],
-  ['/mi-negocio', 'Mi negocio'],
-  ['/mis-publicaciones', 'Mis publicaciones'],
-  ['/publicar-oferta', 'Publicar excedente'],
-  ['/editar-oferta/:id', 'Editar oferta'],
   ['/solicitudes-recibidas', 'Solicitudes recibidas'],
   ['/solicitudes-enviadas', 'Solicitudes enviadas'],
   ['/negociaciones/:id', 'Negociación'],
@@ -31,46 +34,75 @@ const administracion = [
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/iniciar-sesion" element={<Login />} />
-      <Route path="/registro" element={<Registro />} />
-      <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
+    <Suspense fallback={<main className="vista-temporal">Cargando ReStock Local...</main>}>
+      <Routes>
+        <Route path="/iniciar-sesion" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
-      {publicas.map(([path, titulo]) => (
+        <Route path="/catalogo" element={<Catalogo />} />
+
+        {publicas.map(([path, titulo]) => (
+          <Route
+            key={path}
+            path={path}
+            element={<VistaTemporal titulo={titulo} />}
+          />
+        ))}
+
+        <Route element={<UserRoutes />}>
+          <Route
+            path="/configurar-negocio"
+            element={<ConfigurarNegocio />}
+          />
+
+          <Route
+            path="/mi-negocio"
+            element={<MiNegocio />}
+          />
+
+          <Route
+            path="/publicar-oferta"
+            element={<PublicarOferta />}
+          />
+
+          <Route
+            path="/mis-publicaciones"
+            element={<MisPublicaciones />}
+          />
+
+          <Route
+            path="/editar-oferta/:id"
+            element={<EditarOferta />}
+          />
+
+          {comercio.map(([path, titulo]) => (
+            <Route
+              key={path}
+              path={path}
+              element={<VistaTemporal titulo={titulo} />}
+            />
+          ))}
+        </Route>
+
+        <Route element={<AdminRoutes />}>
+          {administracion.map(([path, titulo]) => (
+            <Route
+              key={path}
+              path={path}
+              element={<VistaTemporal titulo={titulo} />}
+            />
+          ))}
+        </Route>
+
         <Route
-          key={path}
-          path={path}
-          element={<VistaTemporal titulo={titulo} />}
+          path="/cuenta-suspendida"
+          element={<VistaTemporal titulo="Cuenta suspendida" />}
         />
-      ))}
 
-      <Route element={<UserRoutes />}>
-        {comercio.map(([path, titulo]) => (
-          <Route
-            key={path}
-            path={path}
-            element={<VistaTemporal titulo={titulo} />}
-          />
-        ))}
-      </Route>
-
-      <Route element={<AdminRoutes />}>
-        {administracion.map(([path, titulo]) => (
-          <Route
-            key={path}
-            path={path}
-            element={<VistaTemporal titulo={titulo} />}
-          />
-        ))}
-      </Route>
-
-      <Route
-        path="/cuenta-suspendida"
-        element={<VistaTemporal titulo="Cuenta suspendida" />}
-      />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
 
