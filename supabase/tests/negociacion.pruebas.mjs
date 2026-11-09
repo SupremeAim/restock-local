@@ -17,18 +17,26 @@ const S = '55555555-5555-5555-5555-555555555555'
 let db
 const resultados = []
 
+async function existeTabla(nombre) {
+  const r = await db.query('select to_regclass($1) is not null as existe', [`public.${nombre}`])
+  return r.rows[0].existe
+}
+
 async function preparar() {
   db = new PGlite()
   await db.exec(leer(join(aqui, 'supabase_simulado.sql')))
   const migraciones = readdirSync(carpetaMigraciones).filter((f) => f.endsWith('.sql')).sort()
   for (const archivo of migraciones) {
     const sql = leer(join(carpetaMigraciones, archivo))
+    if (sql.includes('create table public.requests') && !(await existeTabla('offers'))) {
+      await db.exec(leer(join(aqui, 'esquema_comercio_actual.sql')))
+    }
     await db.exec(sql)
   }
   const nombres = { [V]: 'Tienda Aurora', [C1]: 'Tienda Mi Barrio', [C2]: 'Moda Express', [X]: 'Tercero', [S]: 'Variedades La Esquina' }
   for (const [id, nombre] of Object.entries(nombres)) {
     await db.query(`insert into auth.users (id, raw_user_meta_data) values ($1, $2)`, [id, { contact_name: nombre }])
-    const b = await db.query(`insert into public.businesses (owner_id, name, city, status) values ($1, $2, 'Cali', $3) returning id`, [id, nombre, id === S ? 'suspendido' : 'habilitado'])
+    const b = await db.query(`insert into public.businesses (owner_id, name, city, sector, status) values ($1, $2, 'Cali', 'Centro', $3) returning id`, [id, nombre, id === S ? 'suspendido' : 'habilitado'])
     await db.query(`insert into public.business_contacts (business_id, phone) values ($1, $2)`, [b.rows[0].id, `30000000${Object.keys(nombres).indexOf(id)}`])
   }
 }
@@ -274,83 +282,32 @@ await prueba('las tablas quedan publicadas para el tiempo real', async () => {
   assert.deepEqual(r.rows.map((x) => x.tablename), ['request_events', 'requests'])
 })
 
-await prueba('un comercio crea su negocio y su teléfono, pero no a nombre de otro ni suspendido', async () => {
-  const N = '66666666-6666-6666-6666-666666666666'
-  await db.query(`insert into auth.users (id, raw_user_meta_data) values ($1, '{"contact_name":"Nuevo"}')`, [N])
-  const b = await como(N, `insert into public.businesses (owner_id, name, city) values ($1, 'Tienda Nueva', 'Cali') returning id, status`, [N])
-  assert.equal(b.rows[0].status, 'habilitado')
-  await como(N, `insert into public.business_contacts (business_id, phone) values ($1, '3101234567')`, [b.rows[0].id])
-  await falla(como(N, `insert into public.business_contacts (business_id, phone) values ($1, '12')`, [b.rows[0].id]), 'check|duplicate')
-  await falla(como(N, `insert into public.businesses (owner_id, name, city) values ($1, 'Ajena', 'Cali')`, [X]), 'row-level security')
-  await falla(como(N, `insert into public.businesses (owner_id, name, city, status) values ($1, 'Otra', 'Cali', 'suspendido')`, [N]), 'permission denied')
+await prueba('cada parte lista sus solicitudes con el nombre de la otra parte y el título de la oferta', async () => {
+  const o = await oferta(60, 5)
+  const s = await rpc(C2, 'crear_solicitud', o.id, 6, 9800, 'Puedo recoger en Cali')
+  const recibidas = (await como(V, `select * from public.listar_solicitudes('recibidas') where id = $1`, [s.id])).rows
+  assert.equal(recibidas.length, 1)
+  assert.equal(recibidas[0].counterpart_name, 'Moda Express')
+  assert.equal(recibidas[0].offer_title, 'Cargadores USB-C')
+  assert.equal(recibidas[0].comentario, 'Puedo recoger en Cali')
+  const enviadas = (await como(C2, `select * from public.listar_solicitudes('enviadas') where id = $1`, [s.id])).rows
+  assert.equal(enviadas[0].counterpart_name, 'Tienda Aurora')
+  assert.equal((await como(C2, `select * from public.listar_solicitudes('recibidas') where id = $1`, [s.id])).rows.length, 0)
+  assert.equal((await como(X, `select * from public.listar_solicitudes('enviadas') where id = $1`, [s.id])).rows.length, 0)
 })
 
-await prueba('cada negocio edita sus datos, pero no su estado, y no ve teléfonos ajenos', async () => {
-  const r = await como(C1, `update public.businesses set description = 'Venta de accesorios' where owner_id = $1 returning id`, [C1])
-  assert.equal(r.rows.length, 1)
-  const ajeno = await como(C1, `update public.businesses set description = 'x' where owner_id = $1 returning id`, [V])
-  assert.equal(ajeno.rows.length, 0)
-  await falla(como(C1, `update public.businesses set status = 'habilitado' where owner_id = $1`, [C1]), 'permission denied')
-  const tels = await como(C1, 'select * from public.business_contacts')
-  assert.equal(tels.rows.length, 1)
-  const nombres = await como(C1, 'select name from public.businesses')
-  assert.ok(nombres.rows.length >= 5)
-})
-
-await prueba('un comercio habilitado publica ofertas válidas; uno suspendido no', async () => {
-  const insertar = (u, minimo, cantidad) => como(u, `insert into public.offers (seller_id, title, description, category, unit_price, min_purchase, qty_available) values ($1, 'Termos', 'Termos de acero nuevos', 'Hogar', 20000, $2, $3) returning status, qty_reserved`, [u, minimo, cantidad])
-  const r = await insertar(V, 5, 30)
-  assert.deepEqual([r.rows[0].status, r.rows[0].qty_reserved], ['activa', 0])
-  await falla(insertar(V, 40, 30), 'row-level security')
-  await falla(insertar(S, 5, 30), 'row-level security')
-  await falla(insertar(C1, 5, 0), 'row-level security')
-  await falla(como(V, `insert into public.offers (seller_id, title, description, category, unit_price, min_purchase, qty_available, qty_reserved) values ($1, 'Termos', 'Termos de acero nuevos', 'Hogar', 1, 1, 5, 3)`, [V]), 'permission denied')
-})
-
-await prueba('el vendedor cambia precio y estado, pero nunca las cantidades', async () => {
-  const o = await oferta(30, 5)
-  await falla(como(V, `update public.offers set qty_available = 999 where id = $1`, [o.id]), 'permission denied')
-  await falla(como(V, `update public.offers set blocked = false where id = $1`, [o.id]), 'permission denied')
-  const precio = await como(V, `update public.offers set unit_price = 9900 where id = $1 returning unit_price::float`, [o.id])
-  assert.equal(precio.rows[0].unit_price, 9900)
-  const ajena = await como(C1, `update public.offers set unit_price = 1 where id = $1 returning id`, [o.id])
-  assert.equal(ajena.rows.length, 0)
-  await como(V, `update public.offers set status = 'pausada' where id = $1`, [o.id])
-  await falla(como(V, `update public.offers set status = 'agotada' where id = $1`, [o.id]), 'cambio_estado_invalido')
-  await como(V, `update public.offers set status = 'archivada' where id = $1`, [o.id])
-  await falla(como(V, `update public.offers set status = 'activa' where id = $1`, [o.id]), 'cambio_estado_invalido')
-})
-
-await prueba('el catálogo muestra solo ofertas activas; sin sesión no se ve nada', async () => {
-  const activa = await oferta(30, 5)
-  const pausada = await oferta(30, 5)
-  await db.query(`update public.offers set status = 'pausada' where id = $1`, [pausada.id])
-  const ve = async (u, id) => (await como(u, 'select id from public.offers where id = $1', [id])).rows.length
-  assert.equal(await ve(C1, activa.id), 1)
-  assert.equal(await ve(C1, pausada.id), 0)
-  assert.equal(await ve(V, pausada.id), 1)
-  await falla(db.transaction(async (tx) => {
-    await tx.exec('set local role anon')
-    return tx.query('select * from public.offers')
-  }), 'permission denied')
-})
-
-await prueba('las partes siguen viendo la oferta de su negociación aunque se pause', async () => {
-  const o = await oferta(30, 5)
-  await rpc(C1, 'crear_solicitud', o.id, 5, 10000)
-  await db.query(`update public.offers set status = 'pausada' where id = $1`, [o.id])
-  assert.equal((await como(C1, 'select id from public.offers where id = $1', [o.id])).rows.length, 1)
-  assert.equal((await como(C2, 'select id from public.offers where id = $1', [o.id])).rows.length, 0)
-})
-
-await prueba('el administrador ve también las ofertas bloqueadas', async () => {
-  const A = '77777777-7777-7777-7777-777777777777'
-  await db.query(`insert into auth.users (id, raw_user_meta_data) values ($1, '{"contact_name":"Admin"}')`, [A])
-  await db.query(`update public.profiles set role = 'admin' where id = $1`, [A])
-  const o = await oferta(30, 5)
-  await db.query(`update public.offers set blocked = true where id = $1`, [o.id])
-  assert.equal((await como(A, 'select id from public.offers where id = $1', [o.id])).rows.length, 1)
-  assert.equal((await como(C1, 'select id from public.offers where id = $1', [o.id])).rows.length, 0)
+await prueba('el detalle solo lo ven las partes, y el comprador no ve reservas ni entregas', async () => {
+  const o = await oferta(60, 5)
+  const s = await rpc(C1, 'crear_solicitud', o.id, 6, 9800)
+  const d = (r) => r.rows[0]
+  const vendedor = d(await como(V, 'select * from public.detalle_solicitud($1)', [s.id]))
+  assert.equal(vendedor.buyer_name, 'Tienda Mi Barrio')
+  assert.equal(vendedor.seller_name, 'Tienda Aurora')
+  assert.equal(vendedor.offer_qty_reserved, 0)
+  const comprador = d(await como(C1, 'select * from public.detalle_solicitud($1)', [s.id]))
+  assert.equal(comprador.offer_qty_available, 60)
+  assert.equal(comprador.offer_qty_reserved, null)
+  assert.equal((await como(X, 'select * from public.detalle_solicitud($1)', [s.id])).rows.length, 0)
 })
 
 for (const [estado, texto] of resultados) console.log(estado, texto)

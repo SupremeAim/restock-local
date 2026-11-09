@@ -75,18 +75,53 @@ using (
   )
 );
 
-create policy offers_select_participantes
-on public.offers
-for select
-to authenticated
-using (
-  exists (
+create function public.rl_fallar(p_codigo text)
+returns void
+language plpgsql
+set search_path = ''
+as $$
+begin
+  raise exception using errcode = 'P0001', message = p_codigo;
+end;
+$$;
+
+create function public.rl_usuario_habilitado(p_usuario uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
     select 1
-    from public.requests r
-    where r.offer_id = offers.id
-      and (select auth.uid()) in (r.buyer_id, r.seller_id)
-  )
-);
+    from public.businesses b
+    join public.profiles p on p.id = b.owner_id
+    where b.owner_id = p_usuario
+      and b.status = 'habilitado'
+      and p.role = 'comercio'
+  );
+$$;
+
+create function public.rl_exigir_habilitado(p_usuario uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_usuario is null then
+    perform public.rl_fallar('sin_sesion');
+  end if;
+
+  if not exists (select 1 from public.businesses where owner_id = p_usuario) then
+    perform public.rl_fallar('negocio_no_configurado');
+  end if;
+
+  if not public.rl_usuario_habilitado(p_usuario) then
+    perform public.rl_fallar('cuenta_suspendida');
+  end if;
+end;
+$$;
 
 create function public.rl_validar_terminos(p_qty integer, p_price numeric, p_note text)
 returns void
@@ -588,6 +623,105 @@ as $$
     and r.status in ('aceptada', 'despachada', 'recibida');
 $$;
 
+create function public.listar_solicitudes(p_tipo text)
+returns table (
+  id uuid,
+  offer_id uuid,
+  buyer_id uuid,
+  seller_id uuid,
+  status text,
+  current_qty integer,
+  current_price numeric,
+  current_author_id uuid,
+  version integer,
+  cancel_reason text,
+  created_at timestamptz,
+  updated_at timestamptz,
+  offer_title text,
+  offer_unit_price numeric,
+  counterpart_name text,
+  counterpart_city text,
+  comentario text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    r.id, r.offer_id, r.buyer_id, r.seller_id, r.status,
+    r.current_qty, r.current_price, r.current_author_id, r.version,
+    r.cancel_reason, r.created_at, r.updated_at,
+    o.title::text, o.unit_price,
+    b.name::text, b.city::text,
+    (select e.note from public.request_events e where e.request_id = r.id and e.seq = 1)
+  from public.requests r
+  join public.offers o on o.id = r.offer_id
+  join public.businesses b
+    on b.owner_id = case when p_tipo = 'recibidas' then r.buyer_id else r.seller_id end
+  where (p_tipo = 'recibidas' and r.seller_id = auth.uid())
+     or (p_tipo = 'enviadas' and r.buyer_id = auth.uid())
+  order by r.created_at desc, r.id;
+$$;
+
+create function public.detalle_solicitud(p_request_id uuid)
+returns table (
+  id uuid,
+  offer_id uuid,
+  buyer_id uuid,
+  seller_id uuid,
+  status text,
+  current_qty integer,
+  current_price numeric,
+  current_author_id uuid,
+  version integer,
+  cancel_reason text,
+  created_at timestamptz,
+  updated_at timestamptz,
+  offer_title text,
+  offer_description text,
+  offer_unit_price numeric,
+  offer_min_purchase integer,
+  offer_qty_available integer,
+  offer_qty_reserved integer,
+  offer_qty_delivered integer,
+  offer_status text,
+  offer_blocked boolean,
+  offer_image_path text,
+  buyer_name text,
+  buyer_city text,
+  buyer_sector text,
+  seller_name text,
+  seller_city text,
+  seller_sector text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    r.id, r.offer_id, r.buyer_id, r.seller_id, r.status,
+    r.current_qty, r.current_price, r.current_author_id, r.version,
+    r.cancel_reason, r.created_at, r.updated_at,
+    o.title::text, o.description::text, o.unit_price, o.min_purchase,
+    o.qty_available,
+    case when auth.uid() = r.seller_id then o.qty_reserved end,
+    case when auth.uid() = r.seller_id then o.qty_delivered end,
+    o.status, o.blocked, o.image_path,
+    bc.name::text, bc.city::text, bc.sector::text,
+    bv.name::text, bv.city::text, bv.sector::text
+  from public.requests r
+  join public.offers o on o.id = r.offer_id
+  join public.businesses bc on bc.owner_id = r.buyer_id
+  join public.businesses bv on bv.owner_id = r.seller_id
+  where r.id = p_request_id
+    and auth.uid() in (r.buyer_id, r.seller_id);
+$$;
+
+revoke all on function public.rl_fallar(text) from public, anon, authenticated;
+revoke all on function public.rl_usuario_habilitado(uuid) from public, anon, authenticated;
+revoke all on function public.rl_exigir_habilitado(uuid) from public, anon, authenticated;
 revoke all on function public.rl_validar_terminos(integer, numeric, text) from public, anon, authenticated;
 revoke all on function public.rl_bloquear_solicitud(uuid, integer) from public, anon, authenticated;
 revoke all on function public.rl_registrar_evento(uuid, text, integer, numeric, text) from public, anon, authenticated;
@@ -602,6 +736,8 @@ revoke all on function public.cancelar_acuerdo(uuid, integer, text) from public,
 revoke all on function public.despachar_acuerdo(uuid, integer, text) from public, anon;
 revoke all on function public.confirmar_recepcion(uuid, integer, text) from public, anon;
 revoke all on function public.telefono_contraparte(uuid) from public, anon;
+revoke all on function public.listar_solicitudes(text) from public, anon;
+revoke all on function public.detalle_solicitud(uuid) from public, anon;
 
 grant execute on function public.crear_solicitud(uuid, integer, numeric, text) to authenticated;
 grant execute on function public.iniciar_revision(uuid, integer) to authenticated;
@@ -613,6 +749,8 @@ grant execute on function public.cancelar_acuerdo(uuid, integer, text) to authen
 grant execute on function public.despachar_acuerdo(uuid, integer, text) to authenticated;
 grant execute on function public.confirmar_recepcion(uuid, integer, text) to authenticated;
 grant execute on function public.telefono_contraparte(uuid) to authenticated;
+grant execute on function public.listar_solicitudes(text) to authenticated;
+grant execute on function public.detalle_solicitud(uuid) to authenticated;
 
 do $$
 begin
