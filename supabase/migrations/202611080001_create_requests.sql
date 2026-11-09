@@ -75,53 +75,18 @@ using (
   )
 );
 
-create function public.rl_fallar(p_codigo text)
-returns void
-language plpgsql
-set search_path = ''
-as $$
-begin
-  raise exception using errcode = 'P0001', message = p_codigo;
-end;
-$$;
-
-create function public.rl_usuario_habilitado(p_usuario uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select exists (
+create policy offers_select_participantes
+on public.offers
+for select
+to authenticated
+using (
+  exists (
     select 1
-    from public.businesses b
-    join public.profiles p on p.id = b.owner_id
-    where b.owner_id = p_usuario
-      and b.status = 'habilitado'
-      and p.role = 'comercio'
-  );
-$$;
-
-create function public.rl_exigir_habilitado(p_usuario uuid)
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if p_usuario is null then
-    perform public.rl_fallar('sin_sesion');
-  end if;
-
-  if not exists (select 1 from public.businesses where owner_id = p_usuario) then
-    perform public.rl_fallar('negocio_no_configurado');
-  end if;
-
-  if not public.rl_usuario_habilitado(p_usuario) then
-    perform public.rl_fallar('cuenta_suspendida');
-  end if;
-end;
-$$;
+    from public.requests r
+    where r.offer_id = offers.id
+      and (select auth.uid()) in (r.buyer_id, r.seller_id)
+  )
+);
 
 create function public.rl_validar_terminos(p_qty integer, p_price numeric, p_note text)
 returns void
@@ -623,9 +588,6 @@ as $$
     and r.status in ('aceptada', 'despachada', 'recibida');
 $$;
 
-revoke all on function public.rl_fallar(text) from public, anon, authenticated;
-revoke all on function public.rl_usuario_habilitado(uuid) from public, anon, authenticated;
-revoke all on function public.rl_exigir_habilitado(uuid) from public, anon, authenticated;
 revoke all on function public.rl_validar_terminos(integer, numeric, text) from public, anon, authenticated;
 revoke all on function public.rl_bloquear_solicitud(uuid, integer) from public, anon, authenticated;
 revoke all on function public.rl_registrar_evento(uuid, text, integer, numeric, text) from public, anon, authenticated;
