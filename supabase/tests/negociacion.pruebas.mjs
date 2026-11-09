@@ -180,6 +180,55 @@ await prueba('10 disponibles y dos solicitudes de 7: solo una se acepta y no hay
   assert.deepEqual([bb.status, bb.version], ['en_negociacion', 2])
 })
 
+await prueba('escenario del documento base: dos aceptaciones simultáneas, cancelar devuelve 7 y repetir no cambia el saldo', async () => {
+  const o = await oferta(10, 5)
+  let a = await rpc(C1, 'crear_solicitud', o.id, 7, 10000)
+  let b = await rpc(C2, 'crear_solicitud', o.id, 7, 10000)
+  a = await rpc(V, 'iniciar_revision', a.id, 1)
+  b = await rpc(V, 'iniciar_revision', b.id, 1)
+
+  const intentos = await Promise.allSettled([
+    rpc(V, 'aceptar_propuesta', a.id, 2),
+    rpc(V, 'aceptar_propuesta', b.id, 2)
+  ])
+  const aceptadas = intentos.filter((r) => r.status === 'fulfilled')
+  const rechazadas = intentos.filter((r) => r.status === 'rejected')
+  assert.equal(aceptadas.length, 1)
+  assert.equal(rechazadas.length, 1)
+  assert.match(rechazadas[0].reason.message, /disponibilidad_insuficiente/)
+  let of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [3, 7, 0])
+
+  const ganadora = aceptadas[0].value
+  const perdedora = ganadora.id === a.id ? b : a
+  const cancelada = await rpc(V, 'cancelar_acuerdo', ganadora.id, ganadora.version, 'El cliente cambió de idea')
+  assert.equal(cancelada.status, 'cancelada')
+  of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [10, 0, 0])
+
+  await falla(rpc(V, 'cancelar_acuerdo', ganadora.id, ganadora.version, 'Segundo intento'), 'version_desactualizada')
+  await falla(rpc(V, 'cancelar_acuerdo', ganadora.id, cancelada.version, 'Segundo intento'), 'estado_invalido')
+  await falla(rpc(C1, 'cancelar_solicitud', ganadora.id, cancelada.version, 'Tercer intento'), 'estado_invalido')
+  of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [10, 0, 0])
+
+  let s = await rpc(V, 'aceptar_propuesta', perdedora.id, 2)
+  of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [3, 7, 0])
+  s = await rpc(V, 'despachar_acuerdo', s.id, s.version, null)
+  const comprador = s.buyer_id
+  s = await rpc(comprador, 'confirmar_recepcion', s.id, s.version, null)
+  assert.equal(s.status, 'recibida')
+  of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [3, 0, 7])
+
+  await falla(rpc(comprador, 'confirmar_recepcion', s.id, s.version, null), 'estado_invalido')
+  await falla(rpc(comprador, 'confirmar_recepcion', s.id, s.version - 1, null), 'version_desactualizada')
+  await falla(rpc(V, 'cancelar_acuerdo', s.id, s.version, 'Ya se entregó'), 'estado_invalido')
+  of = await verOferta(o.id)
+  assert.deepEqual([of.qty_available, of.qty_reserved, of.qty_delivered], [3, 0, 7])
+})
+
 await prueba('la oferta se agota y vuelve a activa al cancelar el acuerdo, liberando la reserva', async () => {
   const o = await oferta(10, 5)
   let s = await rpc(C1, 'crear_solicitud', o.id, 10, 10000)
