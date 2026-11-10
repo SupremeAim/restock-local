@@ -1,34 +1,24 @@
+
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
-import VistaTemporal from '../pages/VistaTemporal'
-import Registro from '../pages/Registro/Registro'
-import Login from '../pages/Login/Login'
-import ConfirmarCorreo from '../pages/ConfirmarCorreo/ConfirmarCorreo'
-import Index from '../pages/Index/Index'
-import SolicitudesRecibidas from '../pages/SolicitudesRecibidas/SolicitudesRecibidas'
-import SolicitudesEnviadas from '../pages/SolicitudesEnviadas/SolicitudesEnviadas'
-import Negociacion from '../pages/Negociacion/Negociacion'
 
-const comercio = [
-  ['/catalogo', 'Catálogo'],
-  ['/ofertas/:id', 'Detalle de oferta'],
-  ['/configurar-negocio', 'Configurar negocio'],
-  ['/mi-negocio', 'Mi negocio'],
-  ['/mis-publicaciones', 'Mis publicaciones'],
-  ['/publicar-oferta', 'Publicar excedente'],
-  ['/editar-oferta/:id', 'Editar oferta'],
-  ['/solicitudes-recibidas', 'Solicitudes recibidas'],
-  ['/solicitudes-enviadas', 'Solicitudes enviadas'],
-  ['/negociaciones/:id', 'Negociación'],
-  ['/red-comercial', 'Red comercial']
-]
-
-const paginas = {
-  '/solicitudes-recibidas': <SolicitudesRecibidas />,
-  '/solicitudes-enviadas': <SolicitudesEnviadas />,
-  '/negociaciones/:id': <Negociacion />
-}
+const VistaTemporal = lazy(() => import('../pages/VistaTemporal'))
+const Index = lazy(() => import('../pages/Index/Index'))
+const Registro = lazy(() => import('../pages/Registro/Registro'))
+const Login = lazy(() => import('../pages/Login/Login'))
+const ConfirmarCorreo = lazy(() => import('../pages/ConfirmarCorreo/ConfirmarCorreo'))
+const ConfigurarNegocio = lazy(() => import('../pages/ConfigurarNegocio/ConfigurarNegocio'))
+const MiNegocio = lazy(() => import('../pages/MiNegocio/MiNegocio'))
+const PublicarOferta = lazy(() => import('../pages/PublicarOferta/PublicarOferta'))
+const MisPublicaciones = lazy(() => import('../pages/MisPublicaciones/MisPublicaciones'))
+const EditarOferta = lazy(() => import('../pages/EditarOferta/EditarOferta'))
+const Catalogo = lazy(() => import('../pages/Catalogo/Catalogo'))
+const DetalleOferta = lazy(() => import('../pages/DetalleOferta/DetalleOferta'))
+const Negociacion = lazy(() => import('../pages/Negociacion/Negociacion'))
+const SolicitudesRecibidas = lazy(() => import('../pages/SolicitudesRecibidas/SolicitudesRecibidas'))
+const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/SolicitudesEnviadas'))
 
 const administracion = [
   ['/admin/comercios', 'Administrar comercios'],
@@ -37,40 +27,89 @@ const administracion = [
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/iniciar-sesion" element={<Login />} />
-      <Route path="/registro" element={<Registro />} />
-      <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
+    <Suspense fallback={<main className="vista-temporal">Cargando ReStock Local...</main>}>
+      <Routes>
+        <Route path="/iniciar-sesion" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
-      <Route path="/" element={<Index />} />
+        <Route path="/" element={<Index />} />
 
-      <Route element={<UserRoutes />}>
-        {comercio.map(([path, titulo]) => (
+        <Route element={<UserRoutes />}>
           <Route
-            key={path}
-            path={path}
-            element={paginas[path] ?? <VistaTemporal titulo={titulo} />}
+            path="/catalogo"
+            element={<Catalogo />}
           />
-        ))}
-      </Route>
 
-      <Route element={<AdminRoutes />}>
-        {administracion.map(([path, titulo]) => (
           <Route
-            key={path}
-            path={path}
-            element={<VistaTemporal titulo={titulo} />}
+            path="/ofertas/:id"
+            element={<DetalleOferta />}
           />
-        ))}
-      </Route>
 
-      <Route
-        path="/cuenta-suspendida"
-        element={<VistaTemporal titulo="Cuenta suspendida" />}
-      />
+          <Route
+            path="/configurar-negocio"
+            element={<ConfigurarNegocio />}
+          />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+          <Route
+            path="/mi-negocio"
+            element={<MiNegocio />}
+          />
+
+          <Route
+            path="/publicar-oferta"
+            element={<PublicarOferta />}
+          />
+
+          <Route
+            path="/mis-publicaciones"
+            element={<MisPublicaciones />}
+          />
+
+          <Route
+            path="/editar-oferta/:id"
+            element={<EditarOferta />}
+          />
+
+          <Route
+            path="/solicitudes-recibidas"
+            element={<SolicitudesRecibidas />}
+          />
+
+          <Route
+            path="/solicitudes-enviadas"
+            element={<SolicitudesEnviadas />}
+          />
+
+          <Route
+            path="/negociaciones/:id"
+            element={<Negociacion />}
+          />
+
+          <Route
+            path="/red-comercial"
+            element={<VistaTemporal titulo="Red comercial" />}
+          />
+        </Route>
+
+        <Route element={<AdminRoutes />}>
+          {administracion.map(([path, titulo]) => (
+            <Route
+              key={path}
+              path={path}
+              element={<VistaTemporal titulo={titulo} />}
+            />
+          ))}
+        </Route>
+
+        <Route
+          path="/cuenta-suspendida"
+          element={<VistaTemporal titulo="Cuenta suspendida" />}
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
 

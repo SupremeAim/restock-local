@@ -1,0 +1,144 @@
+
+.form {
+  display: grid;
+  gap: 19px;
+
+  h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid #d5dbe5;
+    border-radius: 7px;
+    background: #fff;
+    color: #263143;
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+
+    &:focus {
+      border-color: #2453d4;
+      box-shadow: 0 0 0 2px rgba(36, 83, 212, 0.1);
+    }
+
+    &:disabled {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: #c65a5a;
+    }
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #283347;
+  }
+
+  small {
+    font-size: 11px;
+    color: #788397;
+    line-height: 1.4;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.otherCity {
+  margin-top: 8px;
+}
+
+.descriptionInfo {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.privacy {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #747f91;
+}
+
+.error {
+  color: #b44343;
+  font-size: 11px;
+}
+
+.message {
+  margin: 0;
+  padding: 11px 13px;
+  background: #fff0ef;
+  border-radius: 6px;
+  color: #a33d3d;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    min-height: 42px;
+    padding: 0 19px;
+    border: 1px solid #2453d4;
+    border-radius: 7px;
+    background: #2453d4;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      background: #1944bd;
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  .cancel {
+    background: white;
+    color: #39465a;
+    border-color: #d5dbe5;
+
+    &:hover {
+      background: #f5f6f8;
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

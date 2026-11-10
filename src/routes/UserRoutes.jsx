@@ -1,8 +1,17 @@
-import { Navigate, Outlet } from 'react-router'
+
+import { Navigate, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 
 function UserRoutes() {
-  const { user, profile, profileError, loading } = useAuth()
+  const location = useLocation()
+
+  const {
+    user,
+    profile,
+    business,
+    profileError,
+    loading
+  } = useAuth()
 
   if (loading) {
     return <main className="vista-temporal">Cargando tu cuenta...</main>
@@ -18,6 +27,7 @@ function UserRoutes() {
         <p role="alert">
           {profileError || 'No pudimos cargar tu perfil.'}
         </p>
+
         <button onClick={() => window.location.reload()}>
           Reintentar
         </button>
@@ -27,6 +37,18 @@ function UserRoutes() {
 
   if (profile.role !== 'comercio') {
     return <Navigate to="/admin/comercios" replace />
+  }
+
+  if (business?.status === 'suspendido') {
+    return <Navigate to="/cuenta-suspendida" replace />
+  }
+
+  if (!business && location.pathname !== '/configurar-negocio') {
+    return <Navigate to="/configurar-negocio" replace />
+  }
+
+  if (business && location.pathname === '/configurar-negocio') {
+    return <Navigate to="/catalogo" replace />
   }
 
   return <Outlet />

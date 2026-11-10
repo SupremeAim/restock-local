@@ -17,21 +17,12 @@ const S = '55555555-5555-5555-5555-555555555555'
 let db
 const resultados = []
 
-async function existeTabla(nombre) {
-  const r = await db.query('select to_regclass($1) is not null as existe', [`public.${nombre}`])
-  return r.rows[0].existe
-}
-
 async function preparar() {
   db = new PGlite()
   await db.exec(leer(join(aqui, 'supabase_simulado.sql')))
   const migraciones = readdirSync(carpetaMigraciones).filter((f) => f.endsWith('.sql')).sort()
   for (const archivo of migraciones) {
-    const sql = leer(join(carpetaMigraciones, archivo))
-    if (sql.includes('create table public.requests') && !(await existeTabla('offers'))) {
-      await db.exec(leer(join(aqui, 'esquema_comercio_actual.sql')))
-    }
-    await db.exec(sql)
+    await db.exec(leer(join(carpetaMigraciones, archivo)))
   }
   const nombres = { [V]: 'Tienda Aurora', [C1]: 'Tienda Mi Barrio', [C2]: 'Moda Express', [X]: 'Tercero', [S]: 'Variedades La Esquina' }
   for (const [id, nombre] of Object.entries(nombres)) {

@@ -1,0 +1,405 @@
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f7f8fb;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 27px 20px;
+  background: #111a2b;
+  color: white;
+}
+
+.brand {
+  margin-bottom: 36px;
+  color: white;
+  font-size: 21px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navigation {
+  display: grid;
+  gap: 8px;
+
+  a {
+    padding: 11px 13px;
+    border-radius: 6px;
+    color: #d0d7e4;
+    text-decoration: none;
+    font-size: 13px;
+
+    &:hover,
+    &.active {
+      background: #2453d4;
+      color: white;
+    }
+  }
+}
+
+.sidebarAccount {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  font-size: 12px;
+
+  span {
+    color: #aab5c7;
+  }
+
+  button {
+    width: fit-content;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: #d0d7e4;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 30px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #2453d4;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.85fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.offerCard,
+.requestCard,
+.sellerCard {
+  min-width: 0;
+  border: 1px solid #dfe3eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.offerCard {
+  overflow: hidden;
+}
+
+.imageContainer {
+  width: 100%;
+  height: 320px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #eef1f6;
+  color: #8792a4;
+  font-size: 12px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.offerInfo {
+  padding: 20px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  h1 {
+    margin: 0;
+    color: #202b3c;
+    font-size: 21px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.activeBadge {
+  padding: 5px 9px;
+  border-radius: 15px;
+  background: #e1f6e8;
+  color: #23834a;
+  font-size: 10px;
+}
+
+.sellerLine {
+  margin: 9px 0 17px;
+  color: #68758a;
+  font-size: 12px;
+}
+
+.description {
+  margin: 0 0 22px;
+  color: #46536a;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 13px;
+  padding-top: 18px;
+  border-top: 1px solid #e6eaf0;
+
+  div {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+  }
+
+  span {
+    color: #788397;
+    font-size: 10px;
+  }
+
+  strong {
+    color: #263143;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+}
+
+.rightColumn {
+  display: grid;
+  gap: 16px;
+}
+
+.requestCard,
+.sellerCard {
+  padding: 19px;
+}
+
+.requestCard {
+  h2,
+  .sellerCard h2 {
+    margin: 0;
+    color: #263143;
+    font-size: 16px;
+  }
+
+  > p {
+    margin: 8px 0 17px;
+    color: #68758a;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}
+
+.integrationNotice {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  background: #f8faff;
+
+  strong {
+    color: #344054;
+    font-size: 12px;
+  }
+
+  small {
+    color: #788397;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
+
+.noticeIcon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8efff;
+  color: #2453d4;
+  font-size: 15px;
+}
+
+.requestNote {
+  margin-top: 15px;
+  padding: 11px;
+  border-radius: 5px;
+  background: #edf3ff;
+  color: #49618e;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.primaryButton {
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  margin-top: 13px;
+  border-radius: 6px;
+  background: #2453d4;
+  color: white;
+  font-size: 11px;
+  text-decoration: none;
+
+  &:hover {
+    background: #1944bd;
+  }
+}
+
+.sellerCard {
+  display: grid;
+  justify-items: start;
+  gap: 11px;
+
+  h2 {
+    margin: 0 0 3px;
+    color: #263143;
+    font-size: 15px;
+  }
+
+  > strong {
+    color: #344054;
+    font-size: 13px;
+  }
+
+  p {
+    margin: 0;
+    color: #68758a;
+    font-size: 11px;
+  }
+
+  small {
+    color: #8792a4;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
+
+.statePage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #f7f8fb;
+  color: #68758a;
+  font-size: 13px;
+}
+
+.stateCard {
+  width: min(430px, 100%);
+  padding: 30px;
+  border: 1px solid #dfe3eb;
+  border-radius: 9px;
+  background: white;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 10px;
+    color: #263143;
+    font-size: 19px;
+  }
+
+  p {
+    margin: 0;
+    color: #788397;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .primaryButton {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .sidebar {
+    width: 205px;
+  }
+
+  .content {
+    padding: 24px 18px;
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1.2fr) minmax(250px, 0.9fr);
+  }
+
+  .details {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 17px;
+  }
+
+  .brand {
+    margin-bottom: 15px;
+  }
+
+  .navigation {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .sidebarAccount {
+    display: none;
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+  }
+
+  .imageContainer {
+    height: 260px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 19px 12px;
+  }
+
+  .offerInfo,
+  .requestCard,
+  .sellerCard {
+    padding: 16px;
+  }
+
+  .details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .titleRow h1 {
+    font-size: 18px;
+  }
+
+  .imageContainer {
+    height: 220px;
+  }
+}

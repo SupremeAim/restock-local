@@ -5,7 +5,7 @@ export const ESTADOS = {
   en_negociacion: { etiqueta: 'En negociación', insignia: 'Informativo', terminal: false },
   aceptada: { etiqueta: 'Aceptada', insignia: 'Correcto', terminal: false },
   despachada: { etiqueta: 'Despachada', insignia: 'Informativo', terminal: false },
-  recibida: { etiqueta: 'Recibida', insignia: 'Correcto', terminal: true },
+  recibida: { etiqueta: 'Completada', insignia: 'Correcto', terminal: true },
   rechazada: { etiqueta: 'Rechazada', insignia: 'Error', terminal: true },
   cancelada: { etiqueta: 'Cancelada', insignia: 'Inactivo', terminal: true }
 }
