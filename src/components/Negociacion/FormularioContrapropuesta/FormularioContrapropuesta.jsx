@@ -30,12 +30,11 @@ function FormularioContrapropuesta({
     const nuevosErrores = validarPropuesta({ cantidad, precio, comentario }, oferta)
     setErrores(nuevosErrores)
     if (Object.keys(nuevosErrores).length > 0) return
-    const propuesta = {
-  cantidad: Number(cantidad),
-  precio: Number(precio),
-  comentario: comentario.trim()
-}
-onEnviar(propuesta)
+    onEnviar({
+      cantidad: Number(cantidad),
+      precio: Number(precio),
+      comentario: comentario.trim()
+    })
   }
 
   return (

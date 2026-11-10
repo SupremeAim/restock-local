@@ -22,7 +22,7 @@ function describirCambio(evento) {
     case 'despachada':
       return 'Enviado o puesto en entrega según lo acordado.'
     case 'recibida':
-     return `${evento.qty ?? ''} unidades entregadas. El acuerdo queda cerrado.`.trim()
+      return `${evento.qty ?? ''} unidades entregadas. El acuerdo queda cerrado.`.trim()
     case 'rechazada':
       return 'El vendedor rechazó la solicitud.'
     case 'cancelada':

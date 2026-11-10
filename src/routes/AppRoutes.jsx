@@ -5,6 +5,7 @@ import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
 
 const VistaTemporal = lazy(() => import('../pages/VistaTemporal'))
+const Index = lazy(() => import('../pages/Index/Index'))
 const Registro = lazy(() => import('../pages/Registro/Registro'))
 const Login = lazy(() => import('../pages/Login/Login'))
 const ConfirmarCorreo = lazy(() => import('../pages/ConfirmarCorreo/ConfirmarCorreo'))
@@ -19,10 +20,6 @@ const Negociacion = lazy(() => import('../pages/Negociacion/Negociacion'))
 const SolicitudesRecibidas = lazy(() => import('../pages/SolicitudesRecibidas/SolicitudesRecibidas'))
 const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/SolicitudesEnviadas'))
 
-const publicas = [
-  ['/', 'Inicio']
-]
-
 const administracion = [
   ['/admin/comercios', 'Administrar comercios'],
   ['/admin/publicaciones', 'Administrar publicaciones']
@@ -36,18 +33,19 @@ function AppRoutes() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
-        <Route path="/catalogo" element={<Catalogo />} />
-        <Route path="/ofertas/:id" element={<DetalleOferta />} />
-
-        {publicas.map(([path, titulo]) => (
-          <Route
-            key={path}
-            path={path}
-            element={<VistaTemporal titulo={titulo} />}
-          />
-        ))}
+        <Route path="/" element={<Index />} />
 
         <Route element={<UserRoutes />}>
+          <Route
+            path="/catalogo"
+            element={<Catalogo />}
+          />
+
+          <Route
+            path="/ofertas/:id"
+            element={<DetalleOferta />}
+          />
+
           <Route
             path="/configurar-negocio"
             element={<ConfigurarNegocio />}

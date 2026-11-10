@@ -21,22 +21,6 @@ function EnviarSolicitud({ oferta }) {
   const [error, setError] = useState(null)
 
   const disponibilidad = disponibilidadParaSolicitar(oferta, user?.id)
-  if (!user) {
-  return (
-    <section className={styles.tarjeta}>
-      <h2>Enviar solicitud</h2>
-      <p className={styles.aviso}>
-        Inicia sesión o crea una cuenta para enviar una solicitud de compra.
-      </p>
-      <Boton variante="secundario" to="/iniciar-sesion">
-        Iniciar sesión
-      </Boton>
-      <Boton variante="secundario" to="/registro">
-        Crear cuenta
-      </Boton>
-    </section>
-  )
-}
 
   async function enviar(datos) {
     setEnviando(true)

@@ -12,24 +12,24 @@ export const ESTADOS = {
 
 export const TIPOS_EVENTO = {
   creada: 'Solicitud creada',
-  revision_iniciada: 'Revisi\u00f3n iniciada',
+  revision_iniciada: 'Revisión iniciada',
   contrapropuesta: 'Contrapropuesta',
   aceptada: 'Propuesta aceptada',
   rechazada: 'Solicitud rechazada',
   cancelada: 'Cancelada',
   despachada: 'Acuerdo despachado',
-  recibida: 'Recepci\u00f3n confirmada',
+  recibida: 'Recepción confirmada'
 }
 
 export const ACCIONES = {
-  iniciar_revision: 'Iniciar revisi\u00f3n',
+  iniciar_revision: 'Iniciar revisión',
   aceptar: 'Aceptar propuesta',
   contraproponer: 'Contraproponer',
   rechazar: 'Rechazar',
   cancelar: 'Cancelar solicitud',
   cancelar_acuerdo: 'Cancelar acuerdo',
   despachar: 'Marcar como despachada',
-  confirmar_recepcion: 'Confirmar recepci\u00f3n'
+  confirmar_recepcion: 'Confirmar recepción'
 }
 
 const ABIERTOS = ['pendiente', 'en_negociacion', 'aceptada', 'despachada']
