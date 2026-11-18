@@ -19,11 +19,8 @@ const DetalleOferta = lazy(() => import('../pages/DetalleOferta/DetalleOferta'))
 const Negociacion = lazy(() => import('../pages/Negociacion/Negociacion'))
 const SolicitudesRecibidas = lazy(() => import('../pages/SolicitudesRecibidas/SolicitudesRecibidas'))
 const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/SolicitudesEnviadas'))
-
-const administracion = [
-  ['/admin/comercios', 'Administrar comercios'],
-  ['/admin/publicaciones', 'Administrar publicaciones']
-]
+const RedComercial = lazy(() => import('../pages/RedComercial/RedComercial'))
+const AdminComercios = lazy(() => import('../pages/AdminComercios/AdminComercios'))
 
 function AppRoutes() {
   return (
@@ -85,22 +82,24 @@ function AppRoutes() {
             path="/negociaciones/:id"
             element={<Negociacion />}
           />
-
+          
           <Route
-            path="/red-comercial"
-            element={<VistaTemporal titulo="Red comercial" />}
+          path="/red-comercial"
+          element={<RedComercial />}
           />
         </Route>
 
         <Route element={<AdminRoutes />}>
-          {administracion.map(([path, titulo]) => (
-            <Route
-              key={path}
-              path={path}
-              element={<VistaTemporal titulo={titulo} />}
-            />
-          ))}
-        </Route>
+        <Route
+        path="/admin/comercios"
+        element={<AdminComercios />}
+  />
+
+  <Route
+    path="/admin/publicaciones"
+    element={<VistaTemporal titulo="Administrar publicaciones" />}
+  />
+</Route>
 
         <Route
           path="/cuenta-suspendida"

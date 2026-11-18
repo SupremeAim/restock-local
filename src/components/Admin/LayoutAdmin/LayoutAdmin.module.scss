@@ -1,0 +1,30 @@
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fb;
+  color: #202938;
+  font-family: inherit;
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .contenido {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .contenido {
+    padding: 20px 14px;
+  }
+}

@@ -1,5 +1,7 @@
+
 import { Navigate, Outlet } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
+import LayoutAdmin from '../components/Admin/LayoutAdmin/LayoutAdmin'
 
 function AdminRoutes() {
   const { user, profile, profileError, loading } = useAuth()
@@ -18,6 +20,7 @@ function AdminRoutes() {
         <p role="alert">
           {profileError || 'No pudimos cargar tu perfil.'}
         </p>
+
         <button onClick={() => window.location.reload()}>
           Reintentar
         </button>
@@ -29,7 +32,11 @@ function AdminRoutes() {
     return <Navigate to="/catalogo" replace />
   }
 
-  return <Outlet />
+  return (
+    <LayoutAdmin>
+      <Outlet />
+    </LayoutAdmin>
+  )
 }
 
 export default AdminRoutes

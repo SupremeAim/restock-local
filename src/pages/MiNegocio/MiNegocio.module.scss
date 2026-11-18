@@ -2,12 +2,14 @@
 .loading {
   padding: 40px;
   color: #68758a;
+  font-size: 12px;
 }
 
 .layout {
   min-height: 100vh;
   display: flex;
   background: #f7f8fb;
+  font-family: inherit;
 }
 
 .sidebar {
@@ -78,15 +80,15 @@
   margin-bottom: 28px;
 
   h1 {
-    margin: 0 0 7px;
-    font-size: 28px;
+    margin: 0 0 6px;
+    font-size: 26px;
     color: #202b3c;
   }
 
   p {
     margin: 0;
     color: #6c788c;
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 
@@ -114,18 +116,18 @@
 .previewCard {
   > span {
     color: #758197;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   h2 {
     margin: 13px 0 7px;
     color: #202b3c;
-    font-size: 20px;
+    font-size: 15px;
   }
 
   p {
     color: #586579;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.5;
   }
 }
@@ -143,6 +145,7 @@
 
   small {
     color: #788397;
+    font-size: 10px;
   }
 
   strong {
