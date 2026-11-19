@@ -3,10 +3,7 @@ import { Link } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import LayoutComercio from '../../components/Shared/LayoutComercio/LayoutComercio'
 import { getOfferImageUrl } from '../../services/offerService'
-import {
-  getCatalogOffers,
-  subscribeToCatalogChanges
-} from '../../services/catalogService'
+import {getCatalogOffers,getCatalogCities,subscribeToCatalogChanges} from '../../services/catalogService'
 import { CATEGORIAS_OFERTA } from '../../helpers/categorias'
 import { getTopOffers } from '../../helpers/ofertasTop'
 import Trie, { normalizeSearchText } from '../../structures/Trie'
@@ -32,6 +29,8 @@ function Catalogo() {
   const { user } = useAuth()
 
   const [offers, setOffers] = useState([])
+  const [cities, setCities] = useState([])
+  const [citiesError, setCitiesError] = useState('')
   const [loading, setLoading] = useState(true)
   const [live, setLive] = useState(false)
   const [error, setError] = useState('')
@@ -66,6 +65,27 @@ function Catalogo() {
       active = false
     }
   }, [refreshVersion])
+  useEffect(() => {
+  let active = true
+
+  getCatalogCities()
+    .then(data => {
+      if (!active) return
+
+      setCities(data)
+      setCitiesError('')
+    })
+    .catch(() => {
+      if (!active) return
+
+      setCities([])
+      setCitiesError('No pudimos cargar las ciudades.')
+    })
+
+  return () => {
+    active = false
+  }
+}, [])
 
   useEffect(() => {
     let active = true
@@ -97,12 +117,6 @@ function Catalogo() {
     })
 
     return index
-  }, [offers])
-
-  const cities = useMemo(() => {
-    return [...new Set(offers.map(offer => offer.seller_city))]
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b, 'es'))
   }, [offers])
 
   const topOffers = useMemo(() => {
@@ -325,6 +339,11 @@ function Catalogo() {
                 </option>
               ))}
             </select>
+            {citiesError && (
+              <small className={styles.filterError} role="alert">
+                {citiesError}
+              </small>
+            )}
           </div>
 
           <div className={styles.field}>

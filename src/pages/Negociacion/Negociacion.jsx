@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import LayoutComercio from '../../components/Shared/LayoutComercio/LayoutComercio'
@@ -19,6 +20,7 @@ import styles from './Negociacion.module.scss'
 
 function confirmaciones(detalle, nombreOtro) {
   const unidades = `${detalle.current_qty} unidades`
+
   return {
     rechazar: {
       titulo: '¿Rechazar esta solicitud?',
@@ -29,12 +31,16 @@ function confirmaciones(detalle, nombreOtro) {
       ],
       textoConfirmar: 'Sí, rechazar solicitud'
     },
+
     cancelar: {
       titulo: '¿Cancelar esta solicitud?',
       descripcion: `${nombreOtro} verá la solicitud como cancelada. Esta acción no se puede deshacer.`,
-      puntos: ['No se reservaron unidades, porque la propuesta no se había aceptado.'],
+      puntos: [
+        'No se reservaron unidades, porque la propuesta no se había aceptado.'
+      ],
       textoConfirmar: 'Sí, cancelar solicitud'
     },
+
     cancelar_acuerdo: {
       titulo: '¿Cancelar este acuerdo?',
       descripcion: `Las ${unidades} reservadas se liberarán y volverán a quedar disponibles. ${nombreOtro} verá el acuerdo como cancelado, junto con el motivo.`,
@@ -43,17 +49,23 @@ function confirmaciones(detalle, nombreOtro) {
       ejemploMotivo: 'Ej.: no tengo el producto en el estado acordado.',
       textoConfirmar: 'Sí, cancelar acuerdo'
     },
+
     despachar: {
       titulo: '¿Marcar como despachada?',
       descripcion: `Confirma que enviaste o pusiste en entrega las ${unidades} según lo acordado.`,
-      puntos: ['Después del despacho el acuerdo ya no se puede cancelar en la plataforma.'],
+      puntos: [
+        'Después del despacho el acuerdo ya no se puede cancelar en la plataforma.'
+      ],
       textoConfirmar: 'Sí, marcar como despachada',
       peligro: false
     },
+
     confirmar_recepcion: {
       titulo: '¿Confirmar la recepción?',
       descripcion: `Confirma solo si recibiste las ${unidades}. Esto cierra el acuerdo.`,
-      puntos: ['Confirmar la recepción no es una prueba de pago.'],
+      puntos: [
+        'Confirmar la recepción no es una prueba de pago.'
+      ],
       textoConfirmar: 'Sí, confirmar recepción',
       peligro: false
     }
@@ -63,10 +75,12 @@ function confirmaciones(detalle, nombreOtro) {
 function Negociacion() {
   const { id } = useParams()
   const { user } = useAuth()
+
   const {
     detalle,
     eventos,
     telefono,
+    direccion,
     cargando,
     noEncontrada,
     error,
@@ -77,6 +91,7 @@ function Negociacion() {
     limpiarErrorAccion,
     recargar
   } = useNegociacion(id)
+
   const [contraproponiendo, setContraproponiendo] = useState(false)
   const [porConfirmar, setPorConfirmar] = useState(null)
 
@@ -99,7 +114,10 @@ function Negociacion() {
           titulo="No tienes acceso a esta negociación"
           descripcion="Solo el comercio comprador y el comercio vendedor de una solicitud pueden ver sus términos y su historial."
         >
-          <Boton to="/solicitudes-recibidas">Ver mis solicitudes</Boton>
+          <Boton to="/solicitudes-recibidas">
+            Ver mis solicitudes
+          </Boton>
+
           <Boton to="/catalogo" variante="secundario">
             Ir al catálogo
           </Boton>
@@ -113,6 +131,7 @@ function Negociacion() {
       <LayoutComercio>
         <div className={styles.error} role="alert">
           <span>{error}</span>
+
           <Boton variante="secundario" onClick={recargar}>
             Reintentar
           </Boton>
@@ -123,12 +142,24 @@ function Negociacion() {
 
   const rol = rolEnSolicitud(detalle, user?.id)
   const esVendedor = rol === 'vendedor'
+
   const negocios = {
-    [detalle.buyer_id]: { name: detalle.buyer_name, city: detalle.buyer_city, sector: detalle.buyer_sector },
-    [detalle.seller_id]: { name: detalle.seller_name, city: detalle.seller_city, sector: detalle.seller_sector }
+    [detalle.buyer_id]: {
+      name: detalle.buyer_name,
+      city: detalle.buyer_city,
+      sector: detalle.buyer_sector
+    },
+
+    [detalle.seller_id]: {
+      name: detalle.seller_name,
+      city: detalle.seller_city,
+      sector: detalle.seller_sector
+    }
   }
+
   const otro = negocios[esVendedor ? detalle.buyer_id : detalle.seller_id]
   const textos = confirmaciones(detalle, otro.name)
+
   const oferta = {
     title: detalle.offer_title,
     unit_price: detalle.offer_unit_price,
@@ -142,24 +173,29 @@ function Negociacion() {
 
   function alPedirAccion(accion) {
     limpiarErrorAccion()
+
     if (accion === 'contraproponer') {
       setContraproponiendo(true)
       return
     }
+
     if (textos[accion]) {
       setPorConfirmar(accion)
       return
     }
+
     ejecutar(accion)
   }
 
   async function confirmar(motivo) {
     const ok = await ejecutar(porConfirmar, { motivo })
+
     if (ok) setPorConfirmar(null)
   }
 
   async function enviarContrapropuesta(datos) {
     const ok = await ejecutar('contraproponer', datos)
+
     if (ok) setContraproponiendo(false)
   }
 
@@ -179,7 +215,9 @@ function Negociacion() {
         conectado={conectado}
       />
 
-      {!conectado && <AvisoDesconexion onReintentar={recargar} />}
+      {!conectado && (
+        <AvisoDesconexion onReintentar={recargar} />
+      )}
 
       <div className={styles.columnas}>
         <div className={styles.principal}>
@@ -195,7 +233,10 @@ function Negociacion() {
             {contraproponiendo && (
               <FormularioContrapropuesta
                 oferta={oferta}
-                inicial={{ cantidad: detalle.current_qty, precio: detalle.current_price }}
+                inicial={{
+                  cantidad: detalle.current_qty,
+                  precio: detalle.current_price
+                }}
                 enviando={enviando}
                 onEnviar={enviarContrapropuesta}
                 onCancelar={() => setContraproponiendo(false)}
@@ -203,15 +244,24 @@ function Negociacion() {
             )}
           </PropuestaVigente>
 
-          <HistorialNegociacion key={detalle.id} eventos={eventos} negocios={negocios} />
+          <HistorialNegociacion
+            key={detalle.id}
+            eventos={eventos}
+            negocios={negocios}
+          />
         </div>
 
         <div className={styles.lateral}>
-          <ResumenOferta oferta={oferta} esVendedor={esVendedor} />
+          <ResumenOferta
+            oferta={oferta}
+            esVendedor={esVendedor}
+          />
+
           <TarjetaContraparte
             rol={esVendedor ? 'Comprador' : 'Vendedor'}
             negocio={otro}
             telefono={telefono}
+            direccion={direccion}
           />
         </div>
       </div>

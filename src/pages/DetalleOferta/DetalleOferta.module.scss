@@ -3,53 +3,85 @@
   min-height: 100vh;
   display: flex;
   background: #f7f8fb;
+  color: #202938;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.layout button,
+.layout input,
+.layout select,
+.layout textarea {
+  font-family: inherit;
 }
 
 .sidebar {
-  width: 250px;
+  position: sticky;
+  top: 0;
+  width: 245px;
+  height: 100vh;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  padding: 27px 20px;
-  background: #111a2b;
-  color: white;
+  padding: 32px 16px;
+  background: #0f172a;
+  color: #ffffff;
 }
 
 .brand {
-  margin-bottom: 36px;
-  color: white;
-  font-size: 21px;
+  margin-bottom: 32px;
+  padding: 0 16px;
+  color: #ffffff;
+  font-size: 24px;
   font-weight: 700;
   text-decoration: none;
 }
 
 .navigation {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 
   a {
-    padding: 11px 13px;
-    border-radius: 6px;
-    color: #d0d7e4;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #cbd5e1;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
 
-    &:hover,
+    &:hover {
+      background: #1e293b;
+      color: #ffffff;
+    }
+
     &.active {
-      background: #2453d4;
-      color: white;
+      background: #1d4ed8;
+      color: #ffffff;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #93c5fd;
+      outline-offset: 2px;
     }
   }
 }
 
 .sidebarAccount {
   display: grid;
-  gap: 8px;
+  gap: 9px;
   margin-top: auto;
-  font-size: 12px;
+  padding: 16px;
+  font-size: 14px;
+
+  strong {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
 
   span {
-    color: #aab5c7;
+    color: #cbd5e1;
+    font-size: 13px;
   }
 
   button {
@@ -57,24 +89,34 @@
     padding: 8px 0;
     border: 0;
     background: transparent;
-    color: #d0d7e4;
-    font: inherit;
+    color: #cbd5e1;
+    font-size: 14px;
     cursor: pointer;
+
+    &:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
   }
 }
 
 .content {
   flex: 1;
   min-width: 0;
-  padding: 30px;
+  padding: 32px;
 }
 
 .back {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
   color: #2453d4;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .columns {
@@ -88,9 +130,9 @@
 .requestCard,
 .sellerCard {
   min-width: 0;
-  border: 1px solid #dfe3eb;
-  border-radius: 8px;
-  background: white;
+  border: 1px solid #d5ddea;
+  border-radius: 10px;
+  background: #ffffff;
 }
 
 .offerCard {
@@ -104,8 +146,8 @@
   place-items: center;
   overflow: hidden;
   background: #eef1f6;
-  color: #8792a4;
-  font-size: 12px;
+  color: #788397;
+  font-size: 14px;
 
   img {
     width: 100%;
@@ -115,41 +157,45 @@
 }
 
 .offerInfo {
-  padding: 20px;
+  padding: 24px;
 }
 
 .titleRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 
   h1 {
     margin: 0;
     color: #202b3c;
-    font-size: 21px;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.3;
     overflow-wrap: anywhere;
   }
 }
 
 .activeBadge {
-  padding: 5px 9px;
-  border-radius: 15px;
-  background: #e1f6e8;
-  color: #23834a;
-  font-size: 10px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .sellerLine {
-  margin: 9px 0 17px;
-  color: #68758a;
-  font-size: 12px;
+  margin: 10px 0 18px;
+  color: #64748b;
+  font-size: 14px;
 }
 
 .description {
-  margin: 0 0 22px;
+  margin: 0 0 24px;
   color: #46536a;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
@@ -157,26 +203,27 @@
 .details {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 13px;
-  padding-top: 18px;
+  gap: 15px;
+  padding-top: 20px;
   border-top: 1px solid #e6eaf0;
 
   div {
     min-width: 0;
     display: grid;
     align-content: start;
-    gap: 7px;
+    gap: 6px;
   }
 
   span {
     color: #788397;
-    font-size: 10px;
+    font-size: 13px;
   }
 
   strong {
     color: #263143;
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
     overflow-wrap: anywhere;
   }
 }
@@ -184,113 +231,127 @@
 .rightColumn {
   display: grid;
   gap: 16px;
+
+  // Mantener la misma tipografía en el formulario
+  // de envío de solicitudes.
+  :global(h2) {
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  :global(label) {
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  :global(input),
+  :global(select),
+  :global(textarea) {
+    font-family: inherit;
+    font-size: 15px;
+  }
+
+  :global(button) {
+    font-family: inherit;
+    font-size: 14px;
+  }
 }
 
 .requestCard,
 .sellerCard {
-  padding: 19px;
+  padding: 22px;
 }
 
-.requestCard {
-  h2,
-  .sellerCard h2 {
-    margin: 0;
+.sellerCard {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+
+  h2 {
+    margin: 0 0 3px;
     color: #263143;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: 600;
   }
 
-  > p {
-    margin: 8px 0 17px;
-    color: #68758a;
-    font-size: 11px;
-    line-height: 1.5;
+  > strong {
+    color: #202b3c;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  small {
+    color: #788397;
+    font-size: 12px;
+    line-height: 1.6;
   }
 }
 
 .integrationNotice {
   display: grid;
   justify-items: start;
-  gap: 8px;
-  padding: 16px;
+  gap: 10px;
+  padding: 18px;
   border: 1px dashed #cbd5e1;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #f8faff;
 
   strong {
     color: #344054;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   small {
     color: #788397;
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.5;
   }
 }
 
 .noticeIcon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: #e8efff;
   color: #2453d4;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .requestNote {
   margin-top: 15px;
-  padding: 11px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 6px;
   background: #edf3ff;
   color: #49618e;
-  font-size: 10px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .primaryButton {
-  min-height: 40px;
+  min-height: 44px;
   display: grid;
   place-items: center;
-  margin-top: 13px;
-  border-radius: 6px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border-radius: 7px;
   background: #2453d4;
-  color: white;
-  font-size: 11px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: none;
+  cursor: pointer;
 
   &:hover {
     background: #1944bd;
-  }
-}
-
-.sellerCard {
-  display: grid;
-  justify-items: start;
-  gap: 11px;
-
-  h2 {
-    margin: 0 0 3px;
-    color: #263143;
-    font-size: 15px;
-  }
-
-  > strong {
-    color: #344054;
-    font-size: 13px;
-  }
-
-  p {
-    margin: 0;
-    color: #68758a;
-    font-size: 11px;
-  }
-
-  small {
-    color: #8792a4;
-    font-size: 10px;
-    line-height: 1.5;
   }
 }
 
@@ -298,45 +359,46 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 24px;
   background: #f7f8fb;
-  color: #68758a;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 16px;
 }
 
 .stateCard {
-  width: min(430px, 100%);
-  padding: 30px;
-  border: 1px solid #dfe3eb;
-  border-radius: 9px;
-  background: white;
+  width: min(480px, 100%);
+  padding: 32px;
+  border: 1px solid #d5ddea;
+  border-radius: 10px;
+  background: #ffffff;
   text-align: center;
 
   h1 {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     color: #263143;
-    font-size: 19px;
+    font-size: 24px;
+    font-weight: 600;
   }
 
   p {
     margin: 0;
     color: #788397;
-    font-size: 12px;
+    font-size: 15px;
     line-height: 1.6;
   }
 
   .primaryButton {
-    margin-top: 20px;
+    margin-top: 22px;
   }
 }
 
 @media (max-width: 1050px) {
   .sidebar {
-    width: 205px;
+    width: 220px;
   }
 
   .content {
-    padding: 24px 18px;
+    padding: 24px 20px;
   }
 
   .columns {
@@ -354,12 +416,14 @@
   }
 
   .sidebar {
+    position: relative;
     width: 100%;
-    padding: 17px;
+    height: auto;
+    padding: 18px;
   }
 
   .brand {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
   }
 
   .navigation {
@@ -382,13 +446,13 @@
 
 @media (max-width: 480px) {
   .content {
-    padding: 19px 12px;
+    padding: 20px 14px;
   }
 
   .offerInfo,
   .requestCard,
   .sellerCard {
-    padding: 16px;
+    padding: 17px;
   }
 
   .details {
@@ -396,7 +460,7 @@
   }
 
   .titleRow h1 {
-    font-size: 18px;
+    font-size: 23px;
   }
 
   .imageContainer {

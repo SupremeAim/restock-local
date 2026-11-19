@@ -1,4 +1,3 @@
-
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
@@ -21,89 +20,48 @@ const SolicitudesRecibidas = lazy(() => import('../pages/SolicitudesRecibidas/So
 const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/SolicitudesEnviadas'))
 const RedComercial = lazy(() => import('../pages/RedComercial/RedComercial'))
 const AdminComercios = lazy(() => import('../pages/AdminComercios/AdminComercios'))
+const CuentaSuspendida = lazy(() => import('../pages/CuentaSuspendida/CuentaSuspendida'))
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<main className="vista-temporal">Cargando ReStock Local...</main>}>
+    <Suspense
+      fallback={
+        <main className="vista-temporal">
+          Cargando ReStock Local...
+        </main>
+      }
+    >
       <Routes>
+        <Route path="/" element={<Index />} />
         <Route path="/iniciar-sesion" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
-        <Route path="/" element={<Index />} />
-
         <Route element={<UserRoutes />}>
-          <Route
-            path="/catalogo"
-            element={<Catalogo />}
-          />
-
-          <Route
-            path="/ofertas/:id"
-            element={<DetalleOferta />}
-          />
-
-          <Route
-            path="/configurar-negocio"
-            element={<ConfigurarNegocio />}
-          />
-
-          <Route
-            path="/mi-negocio"
-            element={<MiNegocio />}
-          />
-
-          <Route
-            path="/publicar-oferta"
-            element={<PublicarOferta />}
-          />
-
-          <Route
-            path="/mis-publicaciones"
-            element={<MisPublicaciones />}
-          />
-
-          <Route
-            path="/editar-oferta/:id"
-            element={<EditarOferta />}
-          />
-
-          <Route
-            path="/solicitudes-recibidas"
-            element={<SolicitudesRecibidas />}
-          />
-
-          <Route
-            path="/solicitudes-enviadas"
-            element={<SolicitudesEnviadas />}
-          />
-
-          <Route
-            path="/negociaciones/:id"
-            element={<Negociacion />}
-          />
-          
-          <Route
-          path="/red-comercial"
-          element={<RedComercial />}
-          />
+          <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/ofertas/:id" element={<DetalleOferta />} />
+          <Route path="/configurar-negocio" element={<ConfigurarNegocio />} />
+          <Route path="/mi-negocio" element={<MiNegocio />} />
+          <Route path="/publicar-oferta" element={<PublicarOferta />} />
+          <Route path="/mis-publicaciones" element={<MisPublicaciones />} />
+          <Route path="/editar-oferta/:id" element={<EditarOferta />} />
+          <Route path="/solicitudes-recibidas" element={<SolicitudesRecibidas />} />
+          <Route path="/solicitudes-enviadas" element={<SolicitudesEnviadas />} />
+          <Route path="/negociaciones/:id" element={<Negociacion />} />
+          <Route path="/red-comercial" element={<RedComercial />} />
         </Route>
 
         <Route element={<AdminRoutes />}>
-        <Route
-        path="/admin/comercios"
-        element={<AdminComercios />}
-  />
-
-  <Route
-    path="/admin/publicaciones"
-    element={<VistaTemporal titulo="Administrar publicaciones" />}
-  />
-</Route>
+          <Route path="/admin/comercios" element={<AdminComercios />} />
+          <Route
+            path="/admin/publicaciones"
+            element={<VistaTemporal titulo="Administrar publicaciones" />}
+          />
+        </Route>
 
         <Route
           path="/cuenta-suspendida"
-          element={<VistaTemporal titulo="Cuenta suspendida" />}
+          element={<CuentaSuspendida />}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />

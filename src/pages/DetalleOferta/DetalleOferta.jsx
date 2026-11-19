@@ -218,8 +218,8 @@ function DetalleOferta() {
               </p>
 
               <small>
-                El teléfono de contacto se muestra cuando se acepta
-                el acuerdo.
+                El teléfono y la dirección del establecimiento se muestran
+                cuando se acepta el acuerdo.
               </small>
             </section>
           </aside>

@@ -20,13 +20,18 @@ function ConfigurarNegocio() {
     try {
       await saveBusinessProfile({
         ...values,
-        contactName: profile?.contact_name || user?.user_metadata?.contact_name || ''
+        contactName:
+          profile?.contact_name ||
+          user?.user_metadata?.contact_name ||
+          ''
       })
 
       refreshAccount()
       navigate('/catalogo', { replace: true })
     } catch (error) {
-      setMessage(error.message || 'No pudimos guardar los datos del negocio.')
+      setMessage(
+        error.message || 'No pudimos guardar los datos del negocio.'
+      )
     } finally {
       setSaving(false)
     }
@@ -65,6 +70,7 @@ function ConfigurarNegocio() {
             name: '',
             city: '',
             sector: '',
+            address: '',
             phone: '',
             description: ''
           }}

@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { saveBusinessProfile } from '../../services/businessService'
 import { useAuth } from '../../hooks/useAuth'
@@ -28,6 +29,7 @@ function MiNegocio() {
     name: business.name,
     city: business.city,
     sector: business.sector,
+    address: business.address || '',
     contactName: profile?.contact_name || '',
     phone: business.phone || '',
     description: business.description || ''
@@ -49,6 +51,7 @@ function MiNegocio() {
       const updated = await saveBusinessProfile(values)
 
       setSavedValues(values)
+
       setPreview({
         ...business,
         ...values,
@@ -57,9 +60,12 @@ function MiNegocio() {
 
       setFormVersion(current => current + 1)
       setMessage('Los cambios se guardaron correctamente.')
+
       refreshAccount()
     } catch (error) {
-      setMessage(error.message || 'No pudimos actualizar el negocio.')
+      setMessage(
+        error.message || 'No pudimos actualizar el negocio.'
+      )
     } finally {
       setSaving(false)
     }
@@ -69,7 +75,9 @@ function MiNegocio() {
     <LayoutComercio>
       <header className={styles.heading}>
         <h1>Mi negocio</h1>
-        <p>Así te identifican otros comercios. Solo tú puedes editar estos datos.</p>
+        <p>
+          Así te identifican otros comercios. Solo tú puedes editar estos datos.
+        </p>
       </header>
 
       <div className={styles.columns}>
@@ -103,7 +111,16 @@ function MiNegocio() {
 
             <div className={styles.phoneInfo}>
               <small>Teléfono</small>
-              <strong>Oculto hasta que se acepte un acuerdo</strong>
+              <strong>
+                Oculto hasta que se acepte un acuerdo
+              </strong>
+            </div>
+
+            <div className={styles.phoneInfo}>
+              <small>Dirección física</small>
+              <strong>
+                Oculta hasta que se acepte un acuerdo
+              </strong>
             </div>
           </section>
 
@@ -122,7 +139,9 @@ function MiNegocio() {
 
             <div>
               <span>Estado</span>
-              <strong className={styles.status}>Habilitado</strong>
+              <strong className={styles.status}>
+                Habilitado
+              </strong>
             </div>
           </section>
         </aside>

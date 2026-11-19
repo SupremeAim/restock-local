@@ -1,3 +1,4 @@
+
 .tarjeta {
   display: flex;
   flex-direction: column;
@@ -30,8 +31,8 @@
 .contacto {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 14px 16px;
   border-radius: 8px;
   background: #dcfce7;
 
@@ -41,9 +42,18 @@
   }
 
   strong {
-    font-size: 16px;
+    color: #0f172a;
+    font-size: 15px;
     font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
   }
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .nombre {
@@ -55,7 +65,7 @@
   margin: 0;
   color: #475569;
   font-size: 12px;
-  line-height: 16px;
+  line-height: 18px;
 }
 
 @media (max-width: 768px) {
