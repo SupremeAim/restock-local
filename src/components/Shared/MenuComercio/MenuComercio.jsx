@@ -14,7 +14,7 @@ const OPCIONES = [
 ]
 
 function MenuComercio() {
-  const { profile } = useAuth()
+  const { profile, business } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   return (
@@ -55,7 +55,10 @@ function MenuComercio() {
         </nav>
 
         <div className={styles.pie}>
-          {profile?.contact_name && <span className={styles.usuario}>{profile.contact_name}</span>}
+          <span className={styles.usuario}>
+  {business?.name || profile?.contact_name}
+</span>
+{business?.city && <span className={styles.ciudad}>{business.city}</span>}
           <div className={styles.salir}>
             <CerrarSesion />
           </div>
