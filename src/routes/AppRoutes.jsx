@@ -38,9 +38,11 @@ function AppRoutes() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/confirmar-correo" element={<ConfirmarCorreo />} />
 
+        {/*Rutas públicas: no requieren iniciar sesión */}
+        <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/ofertas/:id" element={<DetalleOferta />} />
+
         <Route element={<UserRoutes />}>
-          <Route path="/catalogo" element={<Catalogo />} />
-          <Route path="/ofertas/:id" element={<DetalleOferta />} />
           <Route path="/configurar-negocio" element={<ConfigurarNegocio />} />
           <Route path="/mi-negocio" element={<MiNegocio />} />
           <Route path="/publicar-oferta" element={<PublicarOferta />} />
