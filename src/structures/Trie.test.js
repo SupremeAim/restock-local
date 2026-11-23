@@ -1,76 +1,76 @@
 
-import test from 'node:test'
-import assert from 'node:assert/strict'
+import { describe, expect, it } from 'vitest'
 import Trie from './Trie.js'
 
-test('busca palabras por prefijo sin importar mayusculas ni tildes', () => {
-  const trie = new Trie()
+describe('Trie (árbol de búsqueda por prefijos)', () => {
+  it('busca palabras por prefijo sin importar mayúsculas ni tildes', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Lámparas LED de escritorio', '1')
+    trie.insertTitle('Lámparas LED de escritorio', '1')
 
-  assert.deepEqual(trie.search('lam'), ['1'])
-  assert.deepEqual(trie.search('LED'), ['1'])
-  assert.deepEqual(trie.search('LÁM'), ['1'])
-})
+    expect(trie.search('lam')).toEqual(['1'])
+    expect(trie.search('LED')).toEqual(['1'])
+    expect(trie.search('LÁM')).toEqual(['1'])
+  })
 
-test('indexa todas las palabras del titulo', () => {
-  const trie = new Trie()
+  it('indexa todas las palabras del título', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Cargador USB de carga rápida', '1')
+    trie.insertTitle('Cargador USB de carga rápida', '1')
 
-  assert.deepEqual(trie.search('carg'), ['1'])
-  assert.deepEqual(trie.search('usb'), ['1'])
-  assert.deepEqual(trie.search('rap'), ['1'])
-})
+    expect(trie.search('carg')).toEqual(['1'])
+    expect(trie.search('usb')).toEqual(['1'])
+    expect(trie.search('rap')).toEqual(['1'])
+  })
 
-test('encuentra varias ofertas con el mismo prefijo', () => {
-  const trie = new Trie()
+  it('encuentra varias ofertas con el mismo prefijo', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Cargador USB-C', '1')
-  trie.insertTitle('Cargadores para celular', '2')
+    trie.insertTitle('Cargador USB-C', '1')
+    trie.insertTitle('Cargadores para celular', '2')
 
-  assert.deepEqual(
-    new Set(trie.search('carg')),
-    new Set(['1', '2'])
-  )
-})
+    expect(new Set(trie.search('carg'))).toEqual(
+      new Set(['1', '2'])
+    )
+  })
 
-test('elimina una oferta sin afectar las demas', () => {
-  const trie = new Trie()
+  it('elimina una oferta sin afectar las demás', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Cargador USB-C', '1')
-  trie.insertTitle('Cargadores para celular', '2')
+    trie.insertTitle('Cargador USB-C', '1')
+    trie.insertTitle('Cargadores para celular', '2')
 
-  assert.equal(trie.removeTitle('Cargador USB-C', '1'), true)
+    expect(trie.removeTitle('Cargador USB-C', '1')).toBe(true)
 
-  assert.deepEqual(trie.search('carg'), ['2'])
-  assert.deepEqual(trie.search('usb'), [])
-})
+    expect(trie.search('carg')).toEqual(['2'])
+    expect(trie.search('usb')).toEqual([])
+  })
 
-test('no duplica una misma palabra para una oferta', () => {
-  const trie = new Trie()
+  it('no duplica una misma palabra para una oferta', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Cargador cargador USB', '1')
-  trie.insertTitle('Cargador USB', '1')
+    trie.insertTitle('Cargador cargador USB', '1')
+    trie.insertTitle('Cargador USB', '1')
 
-  assert.deepEqual(trie.search('carg'), ['1'])
-})
+    expect(trie.search('carg')).toEqual(['1'])
+  })
 
-test('devuelve una lista vacia para prefijos inexistentes', () => {
-  const trie = new Trie()
+  it('devuelve una lista vacía para prefijos inexistentes', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Lámparas LED', '1')
+    trie.insertTitle('Lámparas LED', '1')
 
-  assert.deepEqual(trie.search('zapat'), [])
-  assert.deepEqual(trie.search(''), [])
-})
+    expect(trie.search('zapat')).toEqual([])
+    expect(trie.search('')).toEqual([])
+  })
 
-test('elimina correctamente el indice de un titulo', () => {
-  const trie = new Trie()
+  it('elimina correctamente el índice de un título', () => {
+    const trie = new Trie()
 
-  trie.insertTitle('Cuadernos argollados', '1')
+    trie.insertTitle('Cuadernos argollados', '1')
 
-  assert.equal(trie.removeTitle('Cuadernos argollados', '1'), true)
-  assert.deepEqual(trie.search('cuad'), [])
-  assert.equal(trie.removeTitle('Cuadernos argollados', '1'), false)
+    expect(trie.removeTitle('Cuadernos argollados', '1')).toBe(true)
+    expect(trie.search('cuad')).toEqual([])
+    expect(trie.removeTitle('Cuadernos argollados', '1')).toBe(false)
+  })
 })

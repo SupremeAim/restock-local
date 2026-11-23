@@ -1,20 +1,26 @@
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ejecutarAccion,
   listarEventos,
   obtenerDetalle,
   obtenerTelefono,
+  obtenerDireccion,
   suscribirCambios
 } from '../services/solicitudes'
 import { esMasReciente } from '../helpers/tiempoReal'
-import { debeRecargar, mensajeDeError } from '../helpers/erroresNegociacion'
+import {
+  debeRecargar,
+  mensajeDeError
+} from '../helpers/erroresNegociacion'
 
-const CON_TELEFONO = ['aceptada', 'despachada', 'recibida']
+const CON_DATOS_PRIVADOS = ['aceptada', 'despachada', 'recibida']
 
 export function useNegociacion(solicitudId) {
   const [detalle, setDetalle] = useState(null)
   const [eventos, setEventos] = useState([])
   const [telefono, setTelefono] = useState(null)
+  const [direccion, setDireccion] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [noEncontrada, setNoEncontrada] = useState(false)
   const [error, setError] = useState('')
@@ -39,14 +45,25 @@ export function useNegociacion(solicitudId) {
         return
       }
 
-      const numero = CON_TELEFONO.includes(datos.status)
-        ? await obtenerTelefono(solicitudId)
-        : null
+      let numero = null
+      let ubicacion = null
+
+      if (CON_DATOS_PRIVADOS.includes(datos.status)) {
+        const privados = await Promise.all([
+          obtenerTelefono(solicitudId),
+          obtenerDireccion(solicitudId)
+        ])
+
+        numero = privados[0]
+        ubicacion = privados[1]
+      }
 
       actual.current = datos
+
       setDetalle(datos)
       setEventos(historial ?? [])
       setTelefono(numero)
+      setDireccion(ubicacion)
       setNoEncontrada(false)
       setError('')
     } catch (e) {
@@ -74,9 +91,13 @@ export function useNegociacion(solicitudId) {
         solicitudes: [`id=eq.${solicitudId}`],
         eventos: `request_id=eq.${solicitudId}`
       },
+
       alCambiarSolicitud: nueva => {
-        if (esMasReciente(nueva, actual.current)) cargar()
+        if (esMasReciente(nueva, actual.current)) {
+          cargar()
+        }
       },
+
       alNuevoEvento: evento => {
         setEventos(lista =>
           lista.some(e => e.seq === evento.seq)
@@ -84,6 +105,7 @@ export function useNegociacion(solicitudId) {
             : [...lista, evento]
         )
       },
+
       alCambiarConexion: estaConectado => {
         setConectado(estaConectado)
 
@@ -127,6 +149,7 @@ export function useNegociacion(solicitudId) {
     detalle,
     eventos,
     telefono,
+    direccion,
     cargando,
     noEncontrada,
     error,

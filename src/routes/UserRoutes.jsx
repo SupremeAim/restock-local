@@ -47,6 +47,15 @@ function UserRoutes() {
     return <Navigate to="/configurar-negocio" replace />
   }
 
+  // Los negocios existentes deben registrar su dirección física.
+  if (
+    business &&
+    !business.address &&
+    location.pathname !== '/mi-negocio'
+  ) {
+    return <Navigate to="/mi-negocio" replace />
+  }
+
   if (business && location.pathname === '/configurar-negocio') {
     return <Navigate to="/catalogo" replace />
   }

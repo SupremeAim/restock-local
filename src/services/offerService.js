@@ -166,3 +166,37 @@ export async function changeOfferStatus(action, offerId) {
 
   if (error) throw error
 }
+
+export async function deleteMyOffer(offerId) {
+  const { data: imagePath, error } = await supabase.rpc(
+    'delete_my_offer',
+    {
+      p_offer_id: offerId
+    }
+  )
+
+  if (error) throw error
+
+  // La publicación ya fue eliminada de la base de datos.
+  // Ahora intentamos eliminar su imagen de Storage.
+  if (imagePath) {
+    const { error: storageError } = await supabase
+      .storage
+      .from(BUCKET)
+      .remove([imagePath])
+
+    if (storageError) {
+      return {
+        deleted: true,
+        imageRemoved: false,
+        warning: 'La publicación se eliminó, pero no pudimos eliminar su imagen.'
+      }
+    }
+  }
+
+  return {
+    deleted: true,
+    imageRemoved: true,
+    warning: ''
+  }
+}

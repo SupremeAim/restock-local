@@ -29,6 +29,7 @@ const emptyValues = {
   name: '',
   city: '',
   sector: '',
+  address: '',
   contactName: '',
   phone: '',
   description: ''
@@ -93,6 +94,14 @@ function FormularioNegocio({
       nextErrors.sector = 'Ingresa el barrio o sector.'
     }
 
+    if (
+      values.address.trim().length < 5 ||
+      values.address.trim().length > 200
+    ) {
+      nextErrors.address =
+        'La dirección debe tener entre 5 y 200 caracteres.'
+    }
+
     if (!/^[0-9]{7,15}$/.test(values.phone)) {
       nextErrors.phone = 'Ingresa entre 7 y 15 dígitos, solo números.'
     }
@@ -106,7 +115,8 @@ function FormularioNegocio({
     }
 
     if (values.description.length > 500) {
-      nextErrors.description = 'La descripción no puede superar 500 caracteres.'
+      nextErrors.description =
+        'La descripción no puede superar los 500 caracteres.'
     }
 
     setErrors(nextErrors)
@@ -121,7 +131,8 @@ function FormularioNegocio({
 
     await onSubmit({
       ...values,
-      city: city.trim()
+      city: city.trim(),
+      address: values.address.trim()
     })
   }
 
@@ -218,6 +229,31 @@ function FormularioNegocio({
         </div>
       </div>
 
+      <div className={styles.field}>
+        <label htmlFor="business-address">
+          Dirección física del establecimiento
+        </label>
+        <input
+          id="business-address"
+          name="address"
+          value={values.address}
+          onChange={handleChange}
+          placeholder="Ej.: Avenida 9 Norte # 12-45"
+          minLength={5}
+          maxLength={200}
+          required
+          disabled={loading}
+          aria-invalid={Boolean(errors.address)}
+        />
+        <small>
+          Obligatoria. Solo se comparte con la contraparte cuando el acuerdo
+          sea aceptado.
+        </small>
+        {errors.address && (
+          <span className={styles.error}>{errors.address}</span>
+        )}
+      </div>
+
       {showContact && (
         <div className={styles.field}>
           <label htmlFor="contact-name">Nombre de contacto</label>
@@ -251,7 +287,10 @@ function FormularioNegocio({
           disabled={loading}
           aria-invalid={Boolean(errors.phone)}
         />
-        <small>Entre 7 y 15 dígitos. Solo lo verá la contraparte de un acuerdo aceptado.</small>
+        <small>
+          Entre 7 y 15 dígitos. Solo lo verá la contraparte de un acuerdo
+          aceptado.
+        </small>
         {errors.phone && <span className={styles.error}>{errors.phone}</span>}
       </div>
 
@@ -277,8 +316,9 @@ function FormularioNegocio({
       </div>
 
       <p className={styles.privacy}>
-        No pedimos documentos empresariales ni direcciones residenciales.
-        ReStock Local no verifica legalmente a los negocios.
+        Registra la dirección física donde opera tu establecimiento.
+        No será visible públicamente; se compartirá con la contraparte
+        cuando el acuerdo sea aceptado.
       </p>
 
       <div className={styles.actions}>

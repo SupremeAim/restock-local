@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
-import { supabase } from '../../services/supabaseClient'
+import LayoutComercio from '../../components/Shared/LayoutComercio/LayoutComercio'
 import {
   changeOfferStatus,
   getMyOffers,
-  getOfferImageUrl
+  getOfferImageUrl,
+  deleteMyOffer
 } from '../../services/offerService'
 import styles from './MisPublicaciones.module.scss'
 
@@ -26,15 +27,6 @@ const statusLabels = {
   archivada: 'Archivada'
 }
 
-const links = [
-  ['/catalogo', 'Catálogo'],
-  ['/mis-publicaciones', 'Mis publicaciones'],
-  ['/solicitudes-recibidas', 'Solicitudes recibidas'],
-  ['/solicitudes-enviadas', 'Solicitudes enviadas'],
-  ['/red-comercial', 'Red comercial'],
-  ['/mi-negocio', 'Mi negocio']
-]
-
 function formatPrice(value) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -44,11 +36,43 @@ function formatPrice(value) {
   }).format(Number(value))
 }
 
-function MisPublicaciones() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { user, business } = useAuth()
+function mensajeErrorEliminacion(error) {
+  const codigo = error?.message ?? ''
 
+  if (codigo.includes('publicacion_no_encontrada')) {
+    return 'No encontramos esta publicación o no te pertenece.'
+  }
+
+  if (codigo.includes('publicacion_no_archivada')) {
+    return 'Primero debes archivar la publicación.'
+  }
+
+  if (codigo.includes('publicacion_bloqueada')) {
+    return 'No puedes eliminar una publicación bloqueada por administración.'
+  }
+
+  if (codigo.includes('publicacion_con_reservas')) {
+    return 'No puedes eliminar una publicación que tiene unidades reservadas.'
+  }
+
+  if (codigo.includes('publicacion_con_entregas')) {
+    return 'No puedes eliminar una publicación que tiene unidades entregadas.'
+  }
+
+  if (codigo.includes('publicacion_con_historial')) {
+    return 'Esta publicación tiene solicitudes o negociaciones registradas. Debes conservarla para proteger el historial comercial.'
+  }
+
+  if (codigo.includes('sin_permiso')) {
+    return 'No tienes permiso para eliminar esta publicación.'
+  }
+
+  return 'No pudimos eliminar la publicación. Inténtalo nuevamente.'
+}
+
+function MisPublicaciones() {
+  const location = useLocation()
+  const { user } = useAuth()
   const userId = user?.id
 
   const [offers, setOffers] = useState([])
@@ -56,7 +80,10 @@ function MisPublicaciones() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState('')
   const [offerToArchive, setOfferToArchive] = useState(null)
+  const [offerToDelete, setOfferToDelete] = useState(null)
+
   const [message, setMessage] = useState(location.state?.message || '')
+  const [warningMessage, setWarningMessage] = useState('')
   const [error, setError] = useState('')
   const [refreshVersion, setRefreshVersion] = useState(0)
 
@@ -105,6 +132,7 @@ function MisPublicaciones() {
   async function handleStatusChange(action, offer) {
     setActionLoading(offer.id)
     setMessage('')
+    setWarningMessage('')
     setError('')
 
     try {
@@ -134,224 +162,244 @@ function MisPublicaciones() {
     await handleStatusChange('archive', offer)
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    navigate('/iniciar-sesion', { replace: true })
+  async function handleDelete() {
+    if (!offerToDelete) return
+
+    const offer = offerToDelete
+
+    setActionLoading(offer.id)
+    setMessage('')
+    setWarningMessage('')
+    setError('')
+
+    try {
+      const result = await deleteMyOffer(offer.id)
+
+      setOfferToDelete(null)
+
+      if (result.warning) {
+        setWarningMessage(result.warning)
+      } else {
+        setMessage('La publicación se eliminó definitivamente.')
+      }
+
+      setRefreshVersion(current => current + 1)
+    } catch (err) {
+      setError(mensajeErrorEliminacion(err))
+    } finally {
+      setActionLoading('')
+    }
   }
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <Link to="/" className={styles.brand}>
-          ReStock Local
-        </Link>
+    <>
+      <LayoutComercio>
+        <div className={styles.page}>
+          <header className={styles.heading}>
+            <div>
+              <h1>Mis publicaciones</h1>
+              <p>
+                Tus excedentes publicados y el estado de sus unidades.
+              </p>
+            </div>
 
-        <nav className={styles.navigation}>
-          {links.map(([path, label]) => (
-            <Link
-              key={path}
-              to={path}
-              className={
-                path === '/mis-publicaciones' ? styles.active : ''
-              }
-            >
-              {label}
+            <Link to="/publicar-oferta" className={styles.publishButton}>
+              Publicar excedente
             </Link>
-          ))}
-        </nav>
+          </header>
 
-        <div className={styles.sidebarAccount}>
-          <strong>{business?.name}</strong>
-          <span>{business?.city}</span>
-          <button onClick={handleLogout}>Cerrar sesión</button>
-        </div>
-      </aside>
+          {message && (
+            <div className={styles.successMessage} role="status">
+              {message}
+              <button onClick={() => setMessage('')}>×</button>
+            </div>
+          )}
 
-      <main className={styles.content}>
-        <header className={styles.heading}>
-          <div>
-            <h1>Mis publicaciones</h1>
-            <p>
-              Tus excedentes publicados y el estado de sus unidades.
-            </p>
+          {warningMessage && (
+            <div className={styles.warningMessage} role="alert">
+              {warningMessage}
+              <button onClick={() => setWarningMessage('')}>×</button>
+            </div>
+          )}
+
+          {error && (
+            <div className={styles.errorMessage} role="alert">
+              {error}
+            </div>
+          )}
+
+          <div className={styles.filters}>
+            {filters.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={filter === value ? styles.selectedFilter : ''}
+                onClick={() => setFilter(value)}
+              >
+                {label} ({counts[value]})
+              </button>
+            ))}
           </div>
 
-          <Link to="/publicar-oferta" className={styles.publishButton}>
-            Publicar excedente
-          </Link>
-        </header>
+          {loading ? (
+            <div className={styles.loading}>
+              Cargando tus publicaciones...
+            </div>
+          ) : offers.length === 0 ? (
+            <section className={styles.emptyState}>
+              <div className={styles.emptyIcon}>◇</div>
+              <h2>Aún no tienes publicaciones</h2>
+              <p>
+                Publica tu primer excedente: productos que no has logrado
+                vender o lotes de colecciones anteriores. Otros comercios
+                podrán encontrarlos en el catálogo.
+              </p>
+              <Link to="/publicar-oferta">
+                Publicar mi primer excedente
+              </Link>
+            </section>
+          ) : visibleOffers.length === 0 ? (
+            <section className={styles.emptyFilter}>
+              No tienes publicaciones en esta categoría.
+            </section>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Publicación</th>
+                    <th>Precio unitario</th>
+                    <th>Disponibles</th>
+                    <th>Reservadas</th>
+                    <th>Entregadas</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
 
-        {message && (
-          <div className={styles.successMessage} role="status">
-            {message}
-            <button onClick={() => setMessage('')}>×</button>
-          </div>
-        )}
+                <tbody>
+                  {visibleOffers.map(offer => {
+                    const imageUrl = getOfferImageUrl(offer.image_path)
 
-        {error && (
-          <div className={styles.errorMessage} role="alert">
-            {error}
-          </div>
-        )}
+                    return (
+                      <tr key={offer.id}>
+                        <td>
+                          <div className={styles.product}>
+                            {imageUrl ? (
+                              <img src={imageUrl} alt={offer.title} />
+                            ) : (
+                              <div className={styles.noImage}>IMG</div>
+                            )}
 
-        <div className={styles.filters}>
-          {filters.map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={
-                filter === value ? styles.selectedFilter : ''
-              }
-              onClick={() => setFilter(value)}
-            >
-              {label} ({counts[value]})
-            </button>
-          ))}
-        </div>
+                            <div>
+                              <strong>{offer.title}</strong>
+                              <small>
+                                {offer.category} · mínimo {offer.min_purchase}
+                              </small>
 
-        {loading ? (
-          <div className={styles.loading}>
-            Cargando tus publicaciones...
-          </div>
-        ) : offers.length === 0 ? (
-          <section className={styles.emptyState}>
-            <div className={styles.emptyIcon}>◇</div>
-            <h2>Aún no tienes publicaciones</h2>
-            <p>
-              Publica tu primer excedente: productos que no has logrado
-              vender o lotes de colecciones anteriores. Otros comercios
-              podrán encontrarlos en el catálogo.
-            </p>
-            <Link to="/publicar-oferta">
-              Publicar mi primer excedente
-            </Link>
-          </section>
-        ) : visibleOffers.length === 0 ? (
-          <section className={styles.emptyFilter}>
-            No tienes publicaciones en esta categoría.
-          </section>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Publicación</th>
-                  <th>Precio unitario</th>
-                  <th>Disponibles</th>
-                  <th>Reservadas</th>
-                  <th>Entregadas</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+                              {offer.blocked && (
+                                <small className={styles.blockReason}>
+                                  Bloqueo administrativo:{' '}
+                                  {offer.block_reason || 'Publicación bloqueada.'}
+                                </small>
+                              )}
+                            </div>
+                          </div>
+                        </td>
 
-              <tbody>
-                {visibleOffers.map(offer => {
-                  const imageUrl = getOfferImageUrl(offer.image_path)
+                        <td>{formatPrice(offer.unit_price)}</td>
+                        <td>{offer.qty_available}</td>
+                        <td>{offer.qty_reserved}</td>
+                        <td>{offer.qty_delivered}</td>
 
-                  return (
-                    <tr key={offer.id}>
-                      <td>
-                        <div className={styles.product}>
-                          {imageUrl ? (
-                            <img src={imageUrl} alt={offer.title} />
-                          ) : (
-                            <div className={styles.noImage}>IMG</div>
-                          )}
-
-                          <div>
-                            <strong>{offer.title}</strong>
-                            <small>
-                              {offer.category} · mínimo {offer.min_purchase}
-                            </small>
+                        <td>
+                          <div className={styles.statusColumn}>
+                            <span
+                              className={`${styles.status} ${styles[offer.status]}`}
+                            >
+                              {statusLabels[offer.status]}
+                            </span>
 
                             {offer.blocked && (
-                              <small className={styles.blockReason}>
-                                Bloqueo administrativo:{' '}
-                                {offer.block_reason || 'Publicación bloqueada.'}
-                              </small>
+                              <span className={styles.blockedBadge}>
+                                Bloqueada
+                              </span>
                             )}
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td>{formatPrice(offer.unit_price)}</td>
-                      <td>{offer.qty_available}</td>
-                      <td>{offer.qty_reserved}</td>
-                      <td>{offer.qty_delivered}</td>
-
-                      <td>
-                        <div className={styles.statusColumn}>
-                          <span className={`${styles.status} ${styles[offer.status]}`}>
-                            {statusLabels[offer.status]}
-                          </span>
-
-                          {offer.blocked && (
-                            <span className={styles.blockedBadge}>
-                              Bloqueada
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className={styles.actions}>
-                          {offer.blocked ? (
-                            <span className={styles.noActions}>
-                              No puedes quitar el bloqueo
-                            </span>
-                          ) : offer.status === 'archivada' ? (
-                            <span className={styles.noActions}>
-                              Sin acciones
-                            </span>
-                          ) : (
-                            <>
-                              <Link to={`/editar-oferta/${offer.id}`}>
-                                Editar
-                              </Link>
-
-                              {offer.status === 'activa' && (
-                                <button
-                                  onClick={() => handleStatusChange('pause', offer)}
-                                  disabled={actionLoading === offer.id}
-                                >
-                                  Pausar
-                                </button>
-                              )}
-
-                              {offer.status === 'pausada' && (
-                                <button
-                                  onClick={() => handleStatusChange('resume', offer)}
-                                  disabled={actionLoading === offer.id}
-                                >
-                                  Reanudar
-                                </button>
-                              )}
-
+                        <td>
+                          <div className={styles.actions}>
+                            {offer.blocked ? (
+                              <span className={styles.noActions}>
+                                No puedes modificar el bloqueo
+                              </span>
+                            ) : offer.status === 'archivada' ? (
                               <button
-                                className={styles.archiveAction}
-                                onClick={() => setOfferToArchive(offer)}
+                                className={styles.deleteAction}
+                                onClick={() => {
+                                  setError('')
+                                  setOfferToDelete(offer)
+                                }}
                                 disabled={actionLoading === offer.id}
                               >
-                                Archivar
+                                Eliminar
                               </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                            ) : (
+                              <>
+                                <Link to={`/editar-oferta/${offer.id}`}>
+                                  Editar
+                                </Link>
 
-        <p className={styles.footerNote}>
-          Las cantidades no se editan manualmente: cambian solo al aceptar,
-          cancelar o recibir un acuerdo. Los precios se expresan en COP.
-        </p>
-      </main>
+                                {offer.status === 'activa' && (
+                                  <button
+                                    onClick={() =>
+                                      handleStatusChange('pause', offer)
+                                    }
+                                    disabled={actionLoading === offer.id}
+                                  >
+                                    Pausar
+                                  </button>
+                                )}
+
+                                {offer.status === 'pausada' && (
+                                  <button
+                                    onClick={() =>
+                                      handleStatusChange('resume', offer)
+                                    }
+                                    disabled={actionLoading === offer.id}
+                                  >
+                                    Reanudar
+                                  </button>
+                                )}
+
+                                <button
+                                  className={styles.archiveAction}
+                                  onClick={() => setOfferToArchive(offer)}
+                                  disabled={actionLoading === offer.id}
+                                >
+                                  Archivar
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <p className={styles.footerNote}>
+            Las cantidades no se editan manualmente: cambian solo al aceptar,
+            cancelar o recibir un acuerdo. Los precios se expresan en COP.
+            Las publicaciones archivadas sin historial comercial pueden
+            eliminarse definitivamente.
+          </p>
+        </div>
+      </LayoutComercio>
 
       {offerToArchive && (
         <div className={styles.modalBackdrop}>
@@ -401,7 +449,64 @@ function MisPublicaciones() {
           </section>
         </div>
       )}
-    </div>
+
+      {offerToDelete && (
+        <div className={styles.modalBackdrop}>
+          <section
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-title"
+          >
+            <h2 id="delete-title">
+              ¿Eliminar definitivamente esta publicación?
+            </h2>
+
+            <p>
+              Estás a punto de eliminar «{offerToDelete.title}».
+              Esta acción no se puede deshacer.
+            </p>
+
+            <ul>
+              <li>
+                La publicación se eliminará permanentemente de tu cuenta.
+              </li>
+              <li>
+                También intentaremos eliminar su imagen de almacenamiento.
+              </li>
+              <li>
+                Solo se permite eliminar publicaciones sin solicitudes
+                ni negociaciones asociadas.
+              </li>
+              <li>
+                Si existe historial comercial, la base de datos rechazará
+                la operación.
+              </li>
+            </ul>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelModal}
+                onClick={() => setOfferToDelete(null)}
+                disabled={actionLoading === offerToDelete.id}
+              >
+                Volver
+              </button>
+
+              <button
+                className={styles.confirmDelete}
+                onClick={handleDelete}
+                disabled={actionLoading === offerToDelete.id}
+              >
+                {actionLoading === offerToDelete.id
+                  ? 'Eliminando...'
+                  : 'Sí, eliminar definitivamente'}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </>
   )
 }
 

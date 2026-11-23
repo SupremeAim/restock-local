@@ -3,12 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
-  },
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "oxlint",
+  "test": "vitest run",
+  "preview": "vite preview"
+},
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
     "react": "^19.3.1",

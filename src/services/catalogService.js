@@ -24,6 +24,17 @@ export async function getCatalogOffer(offerId) {
   return data
 }
 
+export async function getCatalogCities() {
+  const { data, error } = await supabase.rpc('catalog_cities')
+
+  if (error) throw error
+
+  return (data || [])
+    .map(item => item.city)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, 'es'))
+}
+
 export function subscribeToCatalogChanges(onChange, onStatus) {
   const channel = supabase
     .channel('catalog:offers')

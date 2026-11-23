@@ -1,6 +1,6 @@
 
 :root {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, Arial, sans-serif;
   color: #202938;
   background: #f7f8fb;
   font-synthesis: none;
@@ -13,4 +13,68 @@
 body {
   margin: 0;
   min-width: 320px;
+  font-family: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.vista-temporal {
+  max-width: 800px;
+  margin: 70px auto;
+  padding: 0 24px;
+}
+
+.marca {
+  color: #2354d7;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.vista-temporal h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.vista-temporal p {
+  color: #667085;
+}
+
+.vista-temporal h2 {
+  margin-top: 50px;
+  font-size: 17px;
+}
+
+.enlaces-prueba {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.enlaces-prueba a {
+  padding: 10px 14px;
+  border: 1px solid #d5dbe6;
+  border-radius: 5px;
+  color: #2354d7;
+  text-decoration: none;
+  background: white;
+}
+
+.enlaces-prueba a:hover {
+  background: #eef3ff;
+}
+
+@media (max-width: 600px) {
+  .vista-temporal {
+    margin: 35px auto;
+  }
 }
