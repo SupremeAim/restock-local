@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
@@ -5,7 +6,8 @@ import LayoutComercio from '../../components/Shared/LayoutComercio/LayoutComerci
 import {
   changeOfferStatus,
   getMyOffers,
-  getOfferImageUrl
+  getOfferImageUrl,
+  deleteMyOffer
 } from '../../services/offerService'
 import styles from './MisPublicaciones.module.scss'
 
@@ -34,6 +36,40 @@ function formatPrice(value) {
   }).format(Number(value))
 }
 
+function mensajeErrorEliminacion(error) {
+  const codigo = error?.message ?? ''
+
+  if (codigo.includes('publicacion_no_encontrada')) {
+    return 'No encontramos esta publicación o no te pertenece.'
+  }
+
+  if (codigo.includes('publicacion_no_archivada')) {
+    return 'Primero debes archivar la publicación.'
+  }
+
+  if (codigo.includes('publicacion_bloqueada')) {
+    return 'No puedes eliminar una publicación bloqueada por administración.'
+  }
+
+  if (codigo.includes('publicacion_con_reservas')) {
+    return 'No puedes eliminar una publicación que tiene unidades reservadas.'
+  }
+
+  if (codigo.includes('publicacion_con_entregas')) {
+    return 'No puedes eliminar una publicación que tiene unidades entregadas.'
+  }
+
+  if (codigo.includes('publicacion_con_historial')) {
+    return 'Esta publicación tiene solicitudes o negociaciones registradas. Debes conservarla para proteger el historial comercial.'
+  }
+
+  if (codigo.includes('sin_permiso')) {
+    return 'No tienes permiso para eliminar esta publicación.'
+  }
+
+  return 'No pudimos eliminar la publicación. Inténtalo nuevamente.'
+}
+
 function MisPublicaciones() {
   const location = useLocation()
   const { user } = useAuth()
@@ -44,7 +80,10 @@ function MisPublicaciones() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState('')
   const [offerToArchive, setOfferToArchive] = useState(null)
+  const [offerToDelete, setOfferToDelete] = useState(null)
+
   const [message, setMessage] = useState(location.state?.message || '')
+  const [warningMessage, setWarningMessage] = useState('')
   const [error, setError] = useState('')
   const [refreshVersion, setRefreshVersion] = useState(0)
 
@@ -93,6 +132,7 @@ function MisPublicaciones() {
   async function handleStatusChange(action, offer) {
     setActionLoading(offer.id)
     setMessage('')
+    setWarningMessage('')
     setError('')
 
     try {
@@ -122,6 +162,35 @@ function MisPublicaciones() {
     await handleStatusChange('archive', offer)
   }
 
+  async function handleDelete() {
+    if (!offerToDelete) return
+
+    const offer = offerToDelete
+
+    setActionLoading(offer.id)
+    setMessage('')
+    setWarningMessage('')
+    setError('')
+
+    try {
+      const result = await deleteMyOffer(offer.id)
+
+      setOfferToDelete(null)
+
+      if (result.warning) {
+        setWarningMessage(result.warning)
+      } else {
+        setMessage('La publicación se eliminó definitivamente.')
+      }
+
+      setRefreshVersion(current => current + 1)
+    } catch (err) {
+      setError(mensajeErrorEliminacion(err))
+    } finally {
+      setActionLoading('')
+    }
+  }
+
   return (
     <>
       <LayoutComercio>
@@ -143,6 +212,13 @@ function MisPublicaciones() {
             <div className={styles.successMessage} role="status">
               {message}
               <button onClick={() => setMessage('')}>×</button>
+            </div>
+          )}
+
+          {warningMessage && (
+            <div className={styles.warningMessage} role="alert">
+              {warningMessage}
+              <button onClick={() => setWarningMessage('')}>×</button>
             </div>
           )}
 
@@ -256,12 +332,19 @@ function MisPublicaciones() {
                           <div className={styles.actions}>
                             {offer.blocked ? (
                               <span className={styles.noActions}>
-                                No puedes quitar el bloqueo
+                                No puedes modificar el bloqueo
                               </span>
                             ) : offer.status === 'archivada' ? (
-                              <span className={styles.noActions}>
-                                Sin acciones
-                              </span>
+                              <button
+                                className={styles.deleteAction}
+                                onClick={() => {
+                                  setError('')
+                                  setOfferToDelete(offer)
+                                }}
+                                disabled={actionLoading === offer.id}
+                              >
+                                Eliminar
+                              </button>
                             ) : (
                               <>
                                 <Link to={`/editar-oferta/${offer.id}`}>
@@ -312,6 +395,8 @@ function MisPublicaciones() {
           <p className={styles.footerNote}>
             Las cantidades no se editan manualmente: cambian solo al aceptar,
             cancelar o recibir un acuerdo. Los precios se expresan en COP.
+            Las publicaciones archivadas sin historial comercial pueden
+            eliminarse definitivamente.
           </p>
         </div>
       </LayoutComercio>
@@ -359,6 +444,63 @@ function MisPublicaciones() {
                 onClick={handleArchive}
               >
                 Sí, archivar oferta
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {offerToDelete && (
+        <div className={styles.modalBackdrop}>
+          <section
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-title"
+          >
+            <h2 id="delete-title">
+              ¿Eliminar definitivamente esta publicación?
+            </h2>
+
+            <p>
+              Estás a punto de eliminar «{offerToDelete.title}».
+              Esta acción no se puede deshacer.
+            </p>
+
+            <ul>
+              <li>
+                La publicación se eliminará permanentemente de tu cuenta.
+              </li>
+              <li>
+                También intentaremos eliminar su imagen de almacenamiento.
+              </li>
+              <li>
+                Solo se permite eliminar publicaciones sin solicitudes
+                ni negociaciones asociadas.
+              </li>
+              <li>
+                Si existe historial comercial, la base de datos rechazará
+                la operación.
+              </li>
+            </ul>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelModal}
+                onClick={() => setOfferToDelete(null)}
+                disabled={actionLoading === offerToDelete.id}
+              >
+                Volver
+              </button>
+
+              <button
+                className={styles.confirmDelete}
+                onClick={handleDelete}
+                disabled={actionLoading === offerToDelete.id}
+              >
+                {actionLoading === offerToDelete.id
+                  ? 'Eliminando...'
+                  : 'Sí, eliminar definitivamente'}
               </button>
             </div>
           </section>

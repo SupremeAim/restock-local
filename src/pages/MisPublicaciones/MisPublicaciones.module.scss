@@ -1,3 +1,4 @@
+
 .page {
   min-width: 0;
   font-family: inherit;
@@ -214,6 +215,15 @@
   .archiveAction {
     color: #a14b4b;
   }
+
+  .deleteAction {
+    color: #b42318;
+    font-weight: 600;
+
+    &:hover {
+      color: #8f1d14;
+    }
+  }
 }
 
 .noActions {
@@ -290,7 +300,8 @@
 }
 
 .successMessage,
-.errorMessage {
+.errorMessage,
+.warningMessage {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -317,6 +328,20 @@
 .errorMessage {
   background: #fff0ef;
   color: #a33d3d;
+}
+
+.warningMessage {
+  background: #fff7e6;
+  border: 1px solid #f5d99a;
+  color: #946200;
+
+  button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 18px;
+    cursor: pointer;
+  }
 }
 
 .modalBackdrop {
@@ -359,6 +384,7 @@
 .modalActions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 22px;
 
@@ -368,6 +394,11 @@
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -383,6 +414,16 @@
   color: white;
 }
 
+.confirmDelete {
+  border: 1px solid #b42318;
+  background: #b42318;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #921c14;
+  }
+}
+
 @media (max-width: 520px) {
   .heading {
     flex-direction: column;
@@ -391,5 +432,13 @@
   .publishButton {
     width: 100%;
     text-align: center;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
   }
 }

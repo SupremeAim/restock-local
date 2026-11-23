@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router'
 import UserRoutes from './UserRoutes'
 import AdminRoutes from './AdminRoutes'
 
-const VistaTemporal = lazy(() => import('../pages/VistaTemporal'))
 const Index = lazy(() => import('../pages/Index/Index'))
 const Registro = lazy(() => import('../pages/Registro/Registro'))
 const Login = lazy(() => import('../pages/Login/Login'))
@@ -21,7 +20,9 @@ const SolicitudesEnviadas = lazy(() => import('../pages/SolicitudesEnviadas/Soli
 const RedComercial = lazy(() => import('../pages/RedComercial/RedComercial'))
 const AdminComercios = lazy(() => import('../pages/AdminComercios/AdminComercios'))
 const CuentaSuspendida = lazy(() => import('../pages/CuentaSuspendida/CuentaSuspendida'))
-
+const AdminPublicaciones = lazy(
+  () => import('../pages/AdminPublicaciones/AdminPublicaciones')
+)
 function AppRoutes() {
   return (
     <Suspense
@@ -54,8 +55,8 @@ function AppRoutes() {
         <Route element={<AdminRoutes />}>
           <Route path="/admin/comercios" element={<AdminComercios />} />
           <Route
-            path="/admin/publicaciones"
-            element={<VistaTemporal titulo="Administrar publicaciones" />}
+          path="/admin/publicaciones"
+          element={<AdminPublicaciones />}
           />
         </Route>
 
