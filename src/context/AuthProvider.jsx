@@ -12,30 +12,39 @@ export function AuthProvider({ children }) {
 
   const userId = session?.user?.id ?? null
 
+  // Escuchar los cambios de autenticación.
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
-        setProfileState(null)
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
         setSession(currentSession)
         setSessionLoading(false)
+
+        // Limpiar el perfil cuando se cierra sesión.
+        // No hacerlo al renovar el token.
+        if (event === 'SIGNED_OUT') {
+          setProfileState(null)
+        }
       }
     )
 
     return () => subscription.unsubscribe()
   }, [])
 
+  // Cargar el perfil al iniciar sesión, cambiar de
+  // usuario o solicitar una actualización explícita.
   useEffect(() => {
-    if (!session) return
+    if (!userId) return
 
     let active = true
-    const id = session.user.id
 
     async function loadProfile() {
       try {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('id, role, contact_name, created_at')
-          .eq('id', id)
+          .eq('id', userId)
           .single()
 
         if (error) throw error
@@ -45,12 +54,12 @@ export function AuthProvider({ children }) {
         }
 
         const business = profile.role === 'comercio'
-          ? await getMyBusiness(id)
+          ? await getMyBusiness(userId)
           : null
 
         if (active) {
           setProfileState({
-            userId: id,
+            userId,
             profile,
             business,
             error: null
@@ -59,7 +68,7 @@ export function AuthProvider({ children }) {
       } catch {
         if (active) {
           setProfileState({
-            userId: id,
+            userId,
             profile: null,
             business: null,
             error: 'No pudimos cargar tu cuenta. Inténtalo de nuevo.'
@@ -73,13 +82,17 @@ export function AuthProvider({ children }) {
     return () => {
       active = false
     }
-  }, [session, refreshVersion])
+  }, [userId, refreshVersion])
 
-  const currentProfile = userId && profileState?.userId === userId
-    ? profileState
-    : null
+  // Evitar mostrar datos de una cuenta diferente.
+  const currentProfile =
+    userId && profileState?.userId === userId
+      ? profileState
+      : null
 
-  const loading = sessionLoading || Boolean(userId && !currentProfile)
+  const loading =
+    sessionLoading ||
+    Boolean(userId && !currentProfile)
 
   function refreshAccount() {
     setProfileState(null)
