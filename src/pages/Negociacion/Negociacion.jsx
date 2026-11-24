@@ -15,6 +15,7 @@ import ResumenOferta from '../../components/Negociacion/ResumenOferta/ResumenOfe
 import TarjetaContraparte from '../../components/Negociacion/TarjetaContraparte/TarjetaContraparte'
 import { useAuth } from '../../hooks/useAuth'
 import { useNegociacion } from '../../hooks/useNegociacion'
+import { getOfferImageUrl } from '../../services/offerService'
 import { formatearFecha, rolEnSolicitud } from '../../helpers/solicitudes'
 import styles from './Negociacion.module.scss'
 
@@ -254,6 +255,7 @@ function Negociacion() {
         <div className={styles.lateral}>
           <ResumenOferta
             oferta={oferta}
+            imagenUrl={getOfferImageUrl(detalle.offer_image_path)}
             esVendedor={esVendedor}
           />
 
