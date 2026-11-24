@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { esEnlaceDeConfirmacion } from '../helpers/confirmacionCorreo'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -35,6 +36,14 @@ const sessionStorageAdapter = {
     sessionStorage.removeItem(key)
     localStorage.removeItem(key)
   }
+}
+
+if (typeof window !== 'undefined' && esEnlaceDeConfirmacion(window.location)) {
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `/confirmar-correo${window.location.search}${window.location.hash}`
+  )
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {

@@ -51,6 +51,7 @@ function Registro() {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/confirmar-correo`,
           data: {
             contact_name: contactName
           }
