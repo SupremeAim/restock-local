@@ -24,7 +24,13 @@
   background: #f1f5f9;
   color: #475569;
   font-size: 12px;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+img.imagen {
+  height: 180px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
 }
 
 .titulo {
