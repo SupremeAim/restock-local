@@ -1,17 +1,56 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { supabase } from '../../services/supabaseClient'
+import { analizarEnlace } from '../../helpers/confirmacionCorreo'
 import styles from './ConfirmarCorreo.module.scss'
 
-const initialParams = new URLSearchParams(window.location.hash.slice(1))
-const initialQuery = new URLSearchParams(window.location.search)
+const enlaceInicial = window.location.pathname === '/confirmar-correo'
+  ? analizarEnlace(window.location)
+  : { tipo: 'sesion' }
 
-const linkHasError = window.location.pathname === '/confirmar-correo' && (
-  initialParams.has('error') ||
-  initialParams.has('error_code') ||
-  initialQuery.has('error') ||
-  initialQuery.has('error_code')
-)
+let procesoDelEnlace = null
+
+function procesarEnlace() {
+  if (procesoDelEnlace) return procesoDelEnlace
+
+  procesoDelEnlace = (async () => {
+    if (enlaceInicial.tipo === 'error') return 'invalid'
+
+    if (enlaceInicial.tipo === 'token_hash') {
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: enlaceInicial.tokenHash,
+        type: enlaceInicial.type
+      })
+
+      window.history.replaceState(window.history.state, '', '/confirmar-correo')
+      if (error) return 'invalid'
+    }
+
+    if (enlaceInicial.tipo === 'code') {
+      const { error } = await supabase.auth.exchangeCodeForSession(enlaceInicial.code)
+
+      window.history.replaceState(window.history.state, '', '/confirmar-correo')
+      if (error) return 'invalid'
+    }
+
+    const { data, error } = await supabase.auth.getSession()
+
+    if (error) throw error
+    if (!data.session) return 'pending'
+
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+
+    if (userError) throw userError
+
+    return userData.user?.email_confirmed_at ? 'confirmed' : 'pending'
+  })()
+
+  procesoDelEnlace.catch(() => {
+    procesoDelEnlace = null
+  })
+
+  return procesoDelEnlace
+}
 
 function ConfirmarCorreo() {
   const [status, setStatus] = useState('loading')
@@ -26,31 +65,10 @@ function ConfirmarCorreo() {
     let active = true
 
     async function checkConfirmation() {
-      if (linkHasError) {
-        if (active) setStatus('invalid')
-        return
-      }
-
       try {
-        const { data, error } = await supabase.auth.getSession()
+        const resultado = await procesarEnlace()
 
-        if (error) throw error
-
-        if (!data.session) {
-          if (active) setStatus('pending')
-          return
-        }
-
-        const { data: userData, error: userError } =
-          await supabase.auth.getUser()
-
-        if (userError) throw userError
-
-        if (active) {
-          setStatus(
-            userData.user?.email_confirmed_at ? 'confirmed' : 'pending'
-          )
-        }
+        if (active) setStatus(resultado)
       } catch {
         if (active) setStatus('error')
       }
