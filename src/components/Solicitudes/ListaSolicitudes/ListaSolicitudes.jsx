@@ -1,4 +1,5 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import Boton from '../../Shared/Boton/Boton'
 import { InsigniaEstado } from '../../Shared/Insignia/Insignia'
 import {
   calcularTotal,
@@ -15,7 +16,13 @@ const fechaCorta = new Intl.DateTimeFormat('es-CO', {
 })
 
 function ListaSolicitudes({ solicitudes, miId, tipo = 'recibidas', negocios = {}, ofertas = {} }) {
+  const navegar = useNavigate()
   const columnaComercio = tipo === 'recibidas' ? 'Comercio comprador' : 'Comercio vendedor'
+
+  function abrirFila(evento, enlace) {
+    if (evento.target.closest('a, button')) return
+    navegar(enlace)
+  }
 
   const filas = solicitudes.map((solicitud) => {
     const idOtro = tipo === 'recibidas' ? solicitud.buyer_id : solicitud.seller_id
@@ -51,11 +58,13 @@ function ListaSolicitudes({ solicitudes, miId, tipo = 'recibidas', negocios = {}
         </thead>
         <tbody>
           {filas.map((fila) => (
-            <tr key={fila.solicitud.id}>
+            <tr
+              key={fila.solicitud.id}
+              className={styles.fila}
+              onClick={(evento) => abrirFila(evento, fila.enlace)}
+            >
               <td>
-                <Link to={fila.enlace} className={styles.nombre}>
-                  {fila.nombre}
-                </Link>
+                <span className={styles.nombre}>{fila.nombre}</span>
                 <span className={styles.secundario}>{fila.lugar}</span>
               </td>
               <td>{fila.oferta}</td>
@@ -65,7 +74,20 @@ function ListaSolicitudes({ solicitudes, miId, tipo = 'recibidas', negocios = {}
               <td>
                 <InsigniaEstado estado={fila.solicitud.status} />
               </td>
-              <td className={fila.turno ? styles.turno : styles.espera}>{fila.paso}</td>
+              <td>
+                {fila.turno ? (
+                  <Boton to={fila.enlace} className={styles.accion}>
+                    {fila.paso}
+                  </Boton>
+                ) : (
+                  <div className={styles.pasoEspera}>
+                    <span className={styles.espera}>{fila.paso}</span>
+                    <Boton to={fila.enlace} variante="secundario" className={styles.accion}>
+                      Ver negociación
+                    </Boton>
+                  </div>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -86,7 +108,8 @@ function ListaSolicitudes({ solicitudes, miId, tipo = 'recibidas', negocios = {}
               <span className={styles.total}>
                 {fila.solicitud.current_qty} u. · {fila.precio} c/u · {fila.total}
               </span>
-              <span className={fila.turno ? styles.turno : styles.espera}>{fila.paso}</span>
+              <span className={fila.turno ? styles.botonTarjeta : styles.espera}>{fila.paso}</span>
+              {!fila.turno && <span className={styles.enlaceTarjeta}>Ver negociación</span>}
             </Link>
           </li>
         ))}
